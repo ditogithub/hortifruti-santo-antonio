@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Catálogo Digital — Orçamento e WhatsApp</title>
+  <style>
+    :root{
+      --accent:#d35400;
+      --muted:#666;
+      --card-bg:#fff;
+      --page-bg:#f5f5f7;
+    }
+    body{
+      font-family: Inter, Poppins, system-ui, Arial;
+      background: var(--page-bg);
+      margin:0;
+      padding:20px;
+      color:#222;
+    }
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    header img{width:56px;height:56px;border-radius:8px;object-fit:cover}
+    header h1{font-size:20px;margin:0}
+    .layout{display:grid;grid-template-columns:1fr 380px;gap:18px}
+    .card{background:var(--card-bg);border-radius:10px;padding:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+    .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .product{display:flex;flex-direction:column;border-radius:8px;overflow:hidden}
+    .product img{width:100%;height:140px;object-fit:cover}
+    .product .body{padding:10px;flex:1;display:flex;flex-direction:column;gap:8px}
+    .product h3{margin:0;font-size:16px}
+    .product p{margin:0;color:var(--muted);font-size:13px}
+    .prices{display:flex;gap:8px;flex-wrap:wrap;font-size:14px}
+    .prices span{background:#f1f1f1;padding:4px 8px;border-radius:6px}
+    .controls{display:flex;gap:8px;align-items:center;margin-top:6px}
+    input[type="number"]{width:80px;padding:6px;border-radius:6px;border:1px solid #ddd}
+    button{background:var(--accent);color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
+    .cart{max-height:70vh;overflow:auto}
+    .cart-item{display:flex;gap:8px;align-items:center;border-bottom:1px dashed #eee;padding:8px 0}
+    .cart-item img{width:56px;height:40px;object-fit:cover;border-radius:6px}
+    .cart-item .info{flex:1}
+    .small{font-size:13px;color:var(--muted)}
+    .total{font-weight:700;font-size:18px;margin-top:12px;text-align:right}
+    .actions{display:flex;gap:8px;justify-content:space-between;margin-top:12px}
+    .note{font-size:13px;color:var(--muted);margin-top:8px}
+    .btn-secondary{background:#2d9cdb}
+    footer{margin-top:16px;text-align:center;color:var(--muted);font-size:13px}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <img src="imagens/logo.jpeg" alt="Logo">
+    <div>
+      <h1>HORTIFRUTI SANTO ANTÔNIO — LUGAR DE COMPRAR BARATO</h1>
+      <div class="small">Selecione os produtos, gere o orçamento e envie para nós pelo WhatsApp</div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- PRODUTOS -->
+    <div>
+      <div class="card">
+        <h2 style="margin:0 0 12px 0">Produtos</h2>
+        <div class="products" id="productsList">
+          <!-- Renderizado por JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- CARRINHO / ORÇAMENTO -->
+    <aside>
+      <div class="card cart">
+        <h2 style="margin:0 0 8px 0">Orçamento</h2>
+        <div id="cartItems">
+          <!-- itens do carrinho -->
+          <div class="small">Nenhum item ainda.</div>
+        </div>
+
+        <div class="total" id="cartTotal">Total: R$ 0,00</div>
+
+        <div class="actions">
+          <button id="clearBtn" class="btn-secondary">Limpar</button>
+          <button id="sendWhats" style="background:#25d366">Enviar pelo WhatsApp</button>
+        </div>
+
+        <div class="note">
+          <strong>Nota:</strong> Antes de enviar, verifique o telefone do vendedor no código (substitua o valor em "sellerPhone").
+        </div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">Resumo rápido</h3>
+        <div class="small">
+          - Suporta preço por kg e preço unitário.<br>
+          - O cliente escolhe o tipo (kg/unidade) e a quantidade.<br>
+          - Mensagem pré-formatada é gerada para WhatsApp.
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    Arquivo local — salve como <code>catalogo.html</code> e abra no navegador.
+  </footer>
+
+  <script>
+    // ====== CONFIGURAÇÕES ======
+    // Substitua com o telefone do vendedor no formato internacional sem "+" e sem espaços.
+    // Ex: '5511999999999' (Brasil: 55 + DDD + número)
+    const sellerPhone = '5581986176915'; // <-- coloque aqui o telefone do vendedor
+
+    // Lista de produtos de exemplo. Edite/adicione como quiser.
+    const products = [
+      {
+        id: 'p01',
+        name: 'Laranja Pêra',
+        desc: 'Laranja pê super doce.',
+        img:'imagens/laranja_pera.jpg',
+        
+        priceUnit: 4.50,     // preço por unidade (R$)
+        priceKg: 28.00       // preço por kg (R$)
+      },
+      {
+        id: 'p02',
+        name: 'Batata Doce',
+        desc: 'Batata doce, roxa doce feito mel.',
+        img: 'imagens/batata_doce.jpeg',
+        priceUnit: null,     // produto vendido só por kg: defina null se não vender por unidade
+        priceKg: 4.99
+      },
+      {
+        id: 'p03',
+        name: 'Limão taiti',
+        desc: 'Pãozinho tradicional, pacote com 10 un.',
+        img: 'imagens/limao_taiti.jpg',
+        priceUnit: 0.89,
+        priceKg: 7.99
+      },
+      {
+        id: 'p04',
+        name: 'Banana Prata',
+        desc: 'Banana Prata docinha',
+        img: 'imagens/banana_prata.jpg',
+        priceUnit: 5.90,
+        priceKg: null
+      },
+      {
+        id: 'p05',
+        name: 'Cará',
+        desc: 'Banana Prata docinha',
+        img: 'imagens/cara.jpg',
+        priceUnit: 5.90,
+        priceKg: null
+      },
+      {
+        id: 'p06',
+        name: 'Tomate',
+        desc: 'Banana Prata docinha',
+        img: 'imagens/tomate.jpg',
+        priceUnit: 5.90,
+        priceKg: null
+      },
+      {
+        id: 'p07',
+        name: 'Maça',
+        desc: 'Maça suculenta',
+        img: 'imagens/maça.jpg',
+        priceUnit: 5.90,
+        priceKg: null
+      },
+      {
+      id: 'p08',
+        name: 'Melancia',
+        desc: 'Melancia docinha do fornecedor',
+        img: 'imagens/melancia.jpg',
+        priceUnit: 5.90,
+        priceKg: null
+      },
+      {
+      id: 'p09',
+        name: 'Pera',
+        desc: 'Pera docinha e fresca',
+        img: 'imagens/pera.jpg',
+        priceUnit: 5.90,
+        priceKg: null
+      }
+      
+    ];
+
+    // ====== ESTADO ======
+    let cart = []; // { productId, mode: 'kg'|'unit', qty, unitPrice }
+
+    // ====== FUNÇÕES AUXILIARES ======
+    function formatBRL(v){
+      // Certifique-se de calcular dígito por dígito se for necessário; aqui usamos toFixed e replace.
+      return 'R$ ' + Number(v).toFixed(2).replace('.', ',');
+    }
+
+    function findProduct(id){ return products.find(p => p.id === id); }
+
+    // ====== RENDER PRODUTOS ======
+    const productsList = document.getElementById('productsList');
+    function renderProducts(){
+      productsList.innerHTML = '';
+      products.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'product card';
+        div.innerHTML = `
+          <img src="${p.img}" alt="${p.name}">
+          <div class="body">
+            <h3>${p.name}</h3>
+            <p class="small">${p.desc}</p>
+            <div class="prices">
+              ${p.priceUnit !== null ? `<span>Unid: ${formatBRL(p.priceUnit)}</span>` : ''}
+              ${p.priceKg   !== null ? `<span>Kg: ${formatBRL(p.priceKg)}</span>` : ''}
+            </div>
+
+            <div class="controls">
+              <label style="font-size:13px;">
+                <input type="radio" name="mode_${p.id}" value="unit" ${p.priceUnit===null ? 'disabled' : 'checked'}>
+                Unidade
+              </label>
+              <label style="font-size:13px;">
+                <input type="radio" name="mode_${p.id}" value="kg" ${p.priceKg===null ? 'disabled' : ''}>
+                Kg
+              </label>
+
+              <input type="number" min="0.01" step="0.01" value="1" id="qty_${p.id}" title="Quantidade">
+              <button data-id="${p.id}">Adicionar</button>
+            </div>
+          </div>
+        `;
+        productsList.appendChild(div);
+
+        // eventos
+        div.querySelector('button').addEventListener('click', () => {
+          const id = p.id;
+          const mode = div.querySelector(`input[name="mode_${id}"]:checked`)?.value;
+          const rawQty = document.getElementById(`qty_${id}`).value;
+          const qty = parseFloat(rawQty);
+          if (!mode || isNaN(qty) || qty <= 0) {
+            alert('Escolha modo e quantidade válida.');
+            return;
+          }
+          // Determina preço unitário usado
+          const price = (mode === 'kg') ? p.priceKg : p.priceUnit;
+          if (price === null || price === undefined) {
+            alert('Produto não disponível nesse modo.');
+            return;
+          }
+          addToCart({ productId: id, mode, qty, unitPrice: price });
+        });
+      });
+    }
+
+    // ====== CARRINHO ======
+    function addToCart(item){
+      // Checa se já existe item com mesmo produto e modo -> soma quantidade
+      const exist = cart.find(c => c.productId === item.productId && c.mode === item.mode && c.unitPrice === item.unitPrice);
+      if (exist) {
+        exist.qty = Number((Number(exist.qty) + Number(item.qty)).toFixed(3));
+      } else {
+        cart.push({...item});
+      }
+      renderCart();
+    }
+
+    function removeFromCart(index){
+      cart.splice(index,1);
+      renderCart();
+    }
+
+    function clearCart(){
+      if (!confirm('Limpar todo o carrinho?')) return;
+      cart = [];
+      renderCart();
+    }
+
+    // cálculo total
+    function calcTotal(){
+      let total = 0;
+      for (const it of cart) total += Number(it.unitPrice) * Number(it.qty);
+      return Number(total);
+    }
+
+    function renderCart(){
+      const container = document.getElementById('cartItems');
+      container.innerHTML = '';
+      if (cart.length === 0) {
+        container.innerHTML = '<div class="small">Nenhum item ainda.</div>';
+      } else {
+        cart.forEach((it, idx) => {
+          const p = findProduct(it.productId);
+          const sub = Number(it.unitPrice) * Number(it.qty);
+          const div = document.createElement('div');
+          div.className = 'cart-item';
+          div.innerHTML = `
+            <img src="${p.img}" alt="${p.name}">
+            <div class="info">
+              <div style="display:flex;justify-content:space-between">
+                <div><strong>${p.name}</strong></div>
+                <div class="small">${formatBRL(sub)}</div>
+              </div>
+              <div class="small">${it.mode === 'kg' ? it.qty+' kg' : it.qty+' un.'} × ${formatBRL(it.unitPrice)}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <button data-idx="${idx}" style="background:#e74c3c">Remover</button>
+            </div>
+          `;
+          container.appendChild(div);
+          div.querySelector('button').addEventListener('click', ()=> removeFromCart(idx));
+        });
+      }
+      document.getElementById('cartTotal').textContent = 'Total: ' + formatBRL(calcTotal());
+    }
+
+    // ====== WhatsApp: gerar mensagem e abrir ======
+    function generateMessage(){
+      if (cart.length === 0) { alert('Carrinho vazio.'); return ''; }
+      const lines = [];
+      lines.push('Olá, gostaria de um orçamento:');
+      lines.push('');
+      cart.forEach((it, idx) => {
+        const p = findProduct(it.productId);
+        const qtyLabel = it.mode === 'kg' ? `${it.qty} kg` : `${it.qty} un.`;
+        const subtotal = (Number(it.unitPrice) * Number(it.qty)).toFixed(2);
+        lines.push(`${idx+1}. ${p.name} — ${qtyLabel} @ ${formatBRL(it.unitPrice)} = R$ ${Number(subtotal).toFixed(2).replace('.',',')}`);
+      });
+      lines.push('');
+      lines.push('Total: ' + formatBRL(calcTotal()));
+      lines.push('');
+      lines.push('Nome:');
+      lines.push('Telefone:');
+      lines.push('Observações:');
+      return lines.join('\n');
+    }
+
+    function sendWhatsApp(){
+      if (!sellerPhone || sellerPhone.trim() === '') {
+        alert('Telefone do vendedor não configurado. Edite a variável sellerPhone no código.');
+        return;
+      }
+      const message = generateMessage();
+      if (!message) return;
+      // encode
+      const encoded = encodeURIComponent(message);
+      // usar API do WhatsApp (web) ou wa.me — aqui usamos api.whatsapp.com
+      const url = `https://api.whatsapp.com/send?phone=${sellerPhone}&text=${encoded}`;
+      window.open(url, '_blank');
+    }
+
+    // ====== INICIALIZAÇÃO ======
+    document.getElementById('sendWhats').addEventListener('click', sendWhatsApp);
+    document.getElementById('clearBtn').addEventListener('click', clearCart);
+    renderProducts();
+    renderCart();
+
+    // ====== NOTAS IMPORTANTES (edite conforme precisar) ======
+    // - Para mudar produtos, altere o array `products` acima (id, nome, desc, img, priceUnit, priceKg).
+    // - Se um produto não for vendido por unidade, defina priceUnit: null. Mesmo para não vendido por kg -> priceKg: null.
+    // - Substitua sellerPhone com o número do vendedor no formato internacional (ex: 5511999999999).
+    // - O botão abre o WhatsApp Web / App com a mensagem pronta; o cliente só confirma e envia.
+  </script>
+</body>
+</html>
