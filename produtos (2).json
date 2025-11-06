@@ -1,0 +1,82 @@
+[
+  {
+    "id": "p01",
+    "name": "Laranja Pêra",
+    "desc": "Laranja pêra super doce.",
+    "img": "imagens/laranja_pera.jpg",
+    "priceUnit": 4.5,
+    "priceKg": 28
+  },
+  {
+    "id": "p02",
+    "name": "Batata Doce",
+    "desc": "Roxa doce feito mel.",
+    "img": "imagens/batata_doce.jpeg",
+    "priceUnit": null,
+    "priceKg": 4.99
+  },
+  {
+    "id": "p03",
+    "name": "Limão Taiti",
+    "desc": "Limão fresco e suculento.",
+    "img": "imagens/limao_taiti.jpg",
+    "priceUnit": 0.89,
+    "priceKg": 7.99
+  },
+  {
+    "id": "p04",
+    "name": "Banana Prata",
+    "desc": "Banana docinha.",
+    "img": "imagens/banana_prata.jpg",
+    "priceUnit": 5.9,
+    "priceKg": null
+  },
+  {
+    "id": "p05",
+    "name": "Cará",
+    "desc": "Fresco e de ótima qualidade.",
+    "img": "imagens/cara.jpg",
+    "priceUnit": 5.9,
+    "priceKg": null
+  },
+  {
+    "id": "p06",
+    "name": "Tomate",
+    "desc": "Tomate maduro e fresco.",
+    "img": "imagens/tomate.jpg",
+    "priceUnit": 5.9,
+    "priceKg": null
+  },
+  {
+    "id": "p07",
+    "name": "Maça",
+    "desc": "Maçã suculenta.",
+    "img": "https://www.google.com/search?client=ms-android-motorola-rvo3&sca_esv=759b77514dba1240&sxsrf=AE3TifPzBFTrBF5n0Qjw7RGJq4RPRbGV5w:1762443936509&udm=2&fbs=AIIjpHydJdUtNKrM02hj0s4nbm4yRBEFyiFuxYYrR6QBOf_jD75Zzpf7Nr8v4hr8rOZhrL53GZEw1YDwfPusr5Oqk12ec_s2Y1rZC2e7V7kR4Hzq8DdYrJbxGS3Nfju_5Kcc1xbHDhygl00V0xJMAW3ZjMp_7qDXFP0LGp2J_lXn_TV1cYEBi-GmLej5Oh5mGE2lu4rZoyLsOYxgheUIo_LieneZD2iOrA4LD_f3LC0_0UP0rngX6qI&q=ma%C3%A7a&sa=X&sqi=2&ved=2ahUKEwiYuZam792QAxVYq5UCHdJNM08QtKgLegQIDxAB&biw=387&bih=719&dpr=2.79#sv=CAMS7wQazwQKgQIKuQEStgEKd0FMa3RfdkdmX2hNZWZoV01PNW5GMzZCZ1FERVg3Q1JXcExTQWhOYzFRc1p4WVRfZk93cTRnS1Y5X01vSzBZcHloc1lOQkk0RVpVbnZrUHFJdXpEdU1LRjZIdXJvXy1mRDJqckx4TjRyVmNFMUNmaWpUQU9UYWZREhd5Y0lNYWVxN09PNnExc1FQLXV2SzhBSRoiQUZNQUdHb3ZsY25pRkVFRFI3Z1pqdjFlQVdIT1F4alRCdxIDODQ5GgEzIgoKAXESBW1hw6dhIgcKA3RicxIAIiYKBGVxbGQSHkNnSUlBQkFBT2dRSUFSQUFWV0tFUEQ5dFdaVERQZxK2AgrPARLMAQqMAUFMa3RfdkhWQTAzX2tGWk1jYVEweVM2bkd1WURkbENaVmRjVEZsbHhlRnVDM1VYQ2R2MWFqRGstT0I0T0ZlTmFCRFk0OXltYURySGU5ZlIyY2c0MXNNZnA4SmpvZkMxQ1RSV3ZUVmx0OFAzeUVYSlpWamxtYVlJUlJ2cl9hUWRzT252WUZxcE1FQVd2Ehd5Y0lNYWVxN09PNnExc1FQLXV2SzhBSRoiQUZNQUdHcktzWmpXbUp2STlzWEEyRWNwZm0yVHVhXzJaZxIENDY5OBoBMyIYCgZpbWdkaWkSDjcxWjNPYTJCZUdGTWpNIhcKBWRvY2lkEg5iMzJUajR1VVpjTVRwTSImCgRlcWxkEh5DZ0lJQUJBQU9nUUlBUkFBVldLRVBEOXRXWlREUGcqEGUtNzFaM09hMkJlR0ZNak0gBCoXCgFzEhBlLTcxWjNPYTJCZUdGTWpNGAEwARgHINmB_9EEMAFKCggCEAIYAiACKAI",
+    "priceUnit": 5.9,
+    "priceKg": 8
+  },
+  {
+    "id": "p08",
+    "name": "Melancia",
+    "desc": "Melancia doce do fornecedor.",
+    "img": "imagens/melancia.jpg",
+    "priceUnit": 5.9,
+    "priceKg": null
+  },
+  {
+    "id": "p09",
+    "name": "Pera",
+    "desc": "Pera fresca e docinha.",
+    "img": "imagens/pera.jpg",
+    "priceUnit": 5.9,
+    "priceKg": null
+  },
+  {
+    "id": "p10",
+    "name": "coco",
+    "desc": "gshsh",
+    "priceUnit": 2,
+    "priceKg": 5,
+    "img": "https://i.postimg.cc/LXxMKfW7/coco.jpg"
+  }
+]
