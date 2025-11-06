@@ -321,6 +321,16 @@ let products = JSON.parse(localStorage.getItem('products')) || [
       adminPassInput.focus();
     }
   });
+  // ======= Botões Exportar e Importar no Painel =======
+const adminPanelExtra = document.createElement('div');
+adminPanelExtra.style.marginTop = '10px';
+adminPanelExtra.innerHTML = `
+  <button onclick="exportarProdutos()">📤 Exportar Produtos</button>
+  <input type="file" id="importFile" accept=".json" onchange="importarProdutos(this)" style="display:none;">
+  <button onclick="document.getElementById('importFile').click()">📥 Importar Produtos</button>
+`;
+document.body.appendChild(adminPanelExtra);
+
 
   // Função de exemplo para abrir o painel admin
   function openAdminPanel(){
@@ -378,6 +388,40 @@ let products = JSON.parse(localStorage.getItem('products')) || [
   else{
     alert("Opção inválida!");
   }
+}
+
+// ======= Exportar produtos =======
+function exportarProdutos() {
+  const products = JSON.parse(localStorage.getItem('products')) || [];
+  const blob = new Blob([JSON.stringify(products, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'produtos.json';
+  a.click();
+  URL.revokeObjectURL(url);
+
+  alert("✅ Produtos exportados com sucesso! O arquivo produtos.json foi baixado.");
+}
+
+// ======= Importar produtos =======
+function importarProdutos(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const importedProducts = JSON.parse(e.target.result);
+      localStorage.setItem('products', JSON.stringify(importedProducts));
+      alert("✅ Produtos importados com sucesso!");
+      location.reload();
+    } catch (error) {
+      alert("❌ Erro ao importar arquivo. Verifique se é um .json válido.");
+    }
+  };
+  reader.readAsText(file);
 }
 
 
