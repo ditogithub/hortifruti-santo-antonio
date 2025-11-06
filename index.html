@@ -125,18 +125,20 @@
   <script>
     const sellerPhone = '5581986176915';
 
-    const products = [
-      { id:'p01', name:'Laranja Pêra', desc:'Laranja pêra super doce.', img:'imagens/laranja_pera.jpg', priceUnit:4.50, priceKg:28.00 },
-      { id:'p02', name:'Batata Doce', desc:'Roxa doce feito mel.', img:'imagens/batata_doce.jpeg', priceUnit:null, priceKg:4.99 },
-      { id:'p03', name:'Limão Taiti', desc:'Limão fresco e suculento.', img:'imagens/limao_taiti.jpg', priceUnit:0.89, priceKg:7.99 },
-      { id:'p04', name:'Banana Prata', desc:'Banana docinha.', img:'imagens/banana_prata.jpg', priceUnit:5.90, priceKg:null },
-      { id:'p05', name:'Cará', desc:'Fresco e de ótima qualidade.', img:'imagens/cara.jpg', priceUnit:5.90, priceKg:null },
-      { id:'p06', name:'Tomate', desc:'Tomate maduro e fresco.', img:'imagens/tomate.jpg', priceUnit:5.90, priceKg:null },
-      { id:'p07', name:'Maça', desc:'Maçã suculenta.', img:'imagens/maca.jpg', priceUnit:5.90, priceKg:null },
-      { id:'p08', name:'Melancia', desc:'Melancia doce do fornecedor.', img:'imagens/melancia.jpg', priceUnit:5.90, priceKg:null },
-      { id:'p09', name:'Pera', desc:'Pera fresca e docinha.', img:'imagens/pera.jpg', priceUnit:5.90, priceKg:null }
-    ];
+    // ====== Carregar produtos do localStorage ======
+let products = JSON.parse(localStorage.getItem('products')) || [
+  { id:'p01', name:'Laranja Pêra', desc:'Laranja pêra super doce.', img:'imagens/laranja_pera.jpg', priceUnit:4.50, priceKg:28.00 },
+  { id:'p02', name:'Batata Doce', desc:'Roxa doce feito mel.', img:'imagens/batata_doce.jpeg', priceUnit:null, priceKg:4.99 },
+  { id:'p03', name:'Limão Taiti', desc:'Limão fresco e suculento.', img:'imagens/limao_taiti.jpg', priceUnit:0.89, priceKg:7.99 },
+  { id:'p04', name:'Banana Prata', desc:'Banana docinha.', img:'imagens/banana_prata.jpg', priceUnit:5.90, priceKg:null },
+  { id:'p05', name:'Cará', desc:'Fresco e de ótima qualidade.', img:'imagens/cara.jpg', priceUnit:5.90, priceKg:null },
+  { id:'p06', name:'Tomate', desc:'Tomate maduro e fresco.', img:'imagens/tomate.jpg', priceUnit:5.90, priceKg:null },
+  { id:'p07', name:'Maça', desc:'Maçã suculenta.', img:'imagens/maca.jpg', priceUnit:5.90, priceKg:null },
+  { id:'p08', name:'Melancia', desc:'Melancia doce do fornecedor.', img:'imagens/melancia.jpg', priceUnit:5.90, priceKg:null },
+  { id:'p09', name:'Pera', desc:'Pera fresca e docinha.', img:'imagens/pera.jpg', priceUnit:5.90, priceKg:null }
+];
 
+  localStorage.setItem('products', JSON.stringify(products));
 
 
     let cart = [];
