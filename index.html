@@ -5,56 +5,74 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Catálogo Digital — Orçamento e WhatsApp</title>
   <style>
-    :root{
+    :root {
       --accent:#d35400;
       --muted:#666;
       --card-bg:#fff;
       --page-bg:#f5f5f7;
     }
-    body{
+    body {
       font-family: Inter, Poppins, system-ui, Arial;
       background: var(--page-bg);
       margin:0;
       padding:20px;
       color:#222;
     }
-    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-    header img{width:56px;height:56px;border-radius:8px;object-fit:cover}
-    header h1{font-size:34px;margin:0}
-    .layout{display:grid;grid-template-columns:1fr 380px;gap:18px}
-    .card{background:var(--card-bg);border-radius:10px;padding:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
-    .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-    .product{display:flex;flex-direction:column;border-radius:8px;overflow:hidden}
-    .product img{width:100%;height:140px;object-fit:cover}
-    .product .body{padding:10px;flex:1;display:flex;flex-direction:column;gap:8px}
-    .product h3{margin:0;font-size:16px}
-    .product p{margin:0;color:var(--muted);font-size:13px}
-    .prices{display:flex;gap:8px;flex-wrap:wrap;font-size:14px}
-    .prices span{background:#f1f1f1;padding:4px 8px;border-radius:6px}
-    .controls{display:flex;gap:8px;align-items:center;margin-top:6px}
-    input[type="number"]{width:80px;padding:6px;border-radius:6px;border:1px solid #ddd}
-    button{background:var(--accent);color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
-    .cart{max-height:70vh;overflow:auto}
-    .cart-item{display:flex;gap:8px;align-items:center;border-bottom:1px dashed #eee;padding:8px 0}
-    .cart-item img{width:56px;height:40px;object-fit:cover;border-radius:6px}
-    .cart-item .info{flex:1}
-    .small{font-size:13px;color:var(--muted)}
-    .total{font-weight:700;font-size:18px;margin-top:12px;text-align:right}
-    .actions{display:flex;gap:8px;justify-content:space-between;margin-top:12px}
-    .note{font-size:13px;color:var(--muted);margin-top:8px}
-    .btn-secondary{background:#2d9cdb}
-    footer{margin-top:16px;text-align:center;color:var(--muted);font-size:13px}
-    @media(max-width:900px){.layout{grid-template-columns:1fr}}
+    header {
+      display:flex;
+      align-items:center;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    header img {
+      width:56px;
+      height:56px;
+      border-radius:8px;
+      object-fit:cover;
+    }
+    header h1 { font-size:26px; margin:0; }
+    .layout { display:grid; grid-template-columns:1fr 380px; gap:18px; }
+    .card { background:var(--card-bg); border-radius:10px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    .products { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
+    .product { display:flex; flex-direction:column; border-radius:8px; overflow:hidden; }
+    .product img { width:100%; height:140px; object-fit:cover; }
+    .product .body { padding:10px; flex:1; display:flex; flex-direction:column; gap:8px; }
+    .product h3 { margin:0; font-size:16px; }
+    .product p { margin:0; color:var(--muted); font-size:13px; }
+    .prices { display:flex; gap:8px; flex-wrap:wrap; font-size:14px; }
+    .prices span { background:#f1f1f1; padding:4px 8px; border-radius:6px; }
+    .controls { display:flex; gap:8px; align-items:center; margin-top:6px; }
+    input[type="number"] { width:80px; padding:6px; border-radius:6px; border:1px solid #ddd; }
+    button { background:var(--accent); color:#fff; border:0; padding:8px 12px; border-radius:8px; cursor:pointer; }
+    .cart { max-height:70vh; overflow:auto; }
+    .cart-item { display:flex; gap:8px; align-items:center; border-bottom:1px dashed #eee; padding:8px 0; }
+    .cart-item img { width:56px; height:40px; object-fit:cover; border-radius:6px; }
+    .cart-item .info { flex:1; }
+    .small { font-size:13px; color:var(--muted); }
+    .total { font-weight:700; font-size:18px; margin-top:12px; text-align:right; }
+    .actions { display:flex; gap:8px; justify-content:space-between; margin-top:12px; }
+    .note { font-size:13px; color:var(--muted); margin-top:8px; }
+    .btn-secondary { background:#2d9cdb; }
+    footer { margin-top:16px; text-align:center; color:var(--muted); font-size:13px; }
+    @media(max-width:900px){ .layout{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
+
   <header>
     <img src="imagens/logo.jpeg" alt="Logo">
+    <!--<div><img src="imagens/compras_verduras.png" alt=""></div>-->
     <div>
+      
       <h1>Hortifruti Santo Antônio : Lugar de comprar barato</h1>
-      <div class="small">Selecione os produtos, gere o orçamento e envie para nós pelo WhatsApp</div>
+      
+        
+      
+      <div class="small">Selecione os produtos, gere o orçamento e envie pelo WhatsApp</div>
+                <!-- Botão Painel Admin -->
+      <a href="#" id="adminLink" style="margin-left:16px; color:#d35400; font-weight:bold;">Painel Admin</a>
+
     </div>
-    
   </header>
 
   <div class="layout">
@@ -62,307 +80,307 @@
     <div>
       <div class="card">
         <h2 style="margin:0 0 12px 0">Produtos</h2>
-        <div class="products" id="productsList">
-          <!-- Renderizado por JS -->
-        </div>
+        <div class="products" id="productsList"></div>
       </div>
     </div>
 
     <!-- CARRINHO / ORÇAMENTO -->
     <aside>
       <div class="card cart">
-        <h2 style="margin:0 0 8px 0">Orçamento</h2>
-        <div id="cartItems">
-          <!-- itens do carrinho -->
-          <div class="small">Nenhum item ainda.</div>
-        </div>
-
+        <h2>Orçamento</h2>
+        <div id="cartItems"><div class="small">Nenhum item ainda.</div></div>
         <div class="total" id="cartTotal">Total: R$ 0,00</div>
+
+        <div class="card" style="margin-top:10px">
+          <h3>Seus dados</h3>
+          <label>Nome:</label>
+          <input type="text" id="clientName" placeholder="Seu nome" style="width:100%;margin-bottom:6px;padding:6px;border-radius:6px;border:1px solid #ccc;">
+          <label>Telefone:</label>
+          <input type="text" id="clientPhone" placeholder="(DDD) 9xxxx-xxxx" style="width:100%;margin-bottom:6px;padding:6px;border-radius:6px;border:1px solid #ccc;">
+          <label>Endereço:</label>
+          <textarea id="clientAddress" placeholder="Rua, número, bairro..." style="width:100%;margin-bottom:6px;padding:6px;border-radius:6px;border:1px solid #ccc;"></textarea>
+          <label>Troco para quanto?</label>
+          <input type="text" id="clientChange" placeholder="Ex: R$ 50,00" style="width:100%;padding:6px;border-radius:6px;border:1px solid #ccc;">
+        </div>
 
         <div class="actions">
           <button id="clearBtn" class="btn-secondary">Limpar</button>
           <button id="sendWhats" style="background:#25d366">Enviar pelo WhatsApp</button>
         </div>
+        <div id="pix" style="margin-top:15px;text-align:center"></div>
 
         <div class="note">
-          <strong>Nota:</strong> Antes de enviar, verifique o telefone do vendedor no código (substitua o valor em "sellerPhone").
-        </div>
-      </div>
-
-      <div style="height:12px"></div>
-
-      <div class="card">
-        <h3 style="margin:0 0 8px 0">Resumo rápido</h3>
-        <div class="small">
-          - Suporta preço por kg e preço unitário.<br>
-          - O cliente escolhe o tipo (kg/unidade) e a quantidade.<br>
-          - Mensagem pré-formatada é gerada para WhatsApp.
+          <strong>Nota:</strong> Clique em "limpar" para limpar o carrinho ou "enviar" para gerar o orçamento e o PIX.
         </div>
       </div>
     </aside>
   </div>
 
-  <footer>
-    Arquivo local — salve como <code>catalogo.html</code> e abra no navegador.
-  </footer>
+  <footer>Arquivo local — salve como <code>catalogo.html</code> e abra no navegador.</footer>
 
+  <!-- bibliotecas primeiro -->
+  
+
+  <!-- seu código -->
   <script>
-    // ====== CONFIGURAÇÕES ======
-    // Substitua com o telefone do vendedor no formato internacional sem "+" e sem espaços.
-    // Ex: '5511999999999' (Brasil: 55 + DDD + número)
-    const sellerPhone = '5581986176915'; // <-- coloque aqui o telefone do vendedor
+    const sellerPhone = '5581986176915';
 
-    // Lista de produtos de exemplo. Edite/adicione como quiser.
     const products = [
-      {
-        id: 'p01',
-        name: 'Laranja Pêra',
-        desc: 'Laranja pê super doce.',
-        img:'imagens/laranja_pera.jpg',
-        
-        priceUnit: 4.50,     // preço por unidade (R$)
-        priceKg: 28.00       // preço por kg (R$)
-      },
-      {
-        id: 'p02',
-        name: 'Batata Doce',
-        desc: 'Batata doce, roxa doce feito mel.',
-        img: 'imagens/batata_doce.jpeg',
-        priceUnit: null,     // produto vendido só por kg: defina null se não vender por unidade
-        priceKg: 4.99
-      },
-      {
-        id: 'p03',
-        name: 'Limão-taiti',
-        desc: 'Pãozinho tradicional, pacote com 10 un.',
-        img: 'imagens/limao_taiti.jpg',
-        priceUnit: 0.89,
-        priceKg: 7.99
-      },
-      {
-        id: 'p04',
-        name: 'Banana Prata',
-        desc: 'Banana Prata docinha',
-        img: 'imagens/banana_prata.jpg',
-        priceUnit: 5.90,
-        priceKg: null
-      },
-      {
-        id: 'p05',
-        name: 'Cará',
-        desc: 'Banana Prata docinha',
-        img: 'imagens/cara.jpg',
-        priceUnit: 5.90,
-        priceKg: null
-      },
-      {
-        id: 'p06',
-        name: 'Tomate',
-        desc: 'Banana Prata docinha',
-        img: 'imagens/tomate.jpg',
-        priceUnit: 5.90,
-        priceKg: null
-      },
-      {
-        id: 'p07',
-        name: 'Maça',
-        desc: 'Maça suculenta',
-        img: 'imagens/maça.jpg',
-        priceUnit: 5.90,
-        priceKg: null
-      },
-      {
-      id: 'p08',
-        name: 'Melancia',
-        desc: 'Melancia docinha do fornecedor',
-        img: 'imagens/melancia.jpg',
-        priceUnit: 5.90,
-        priceKg: null
-      },
-      {
-      id: 'p09',
-        name: 'Pera',
-        desc: 'Pera docinha e fresca',
-        img: 'imagens/pera.jpg',
-        priceUnit: 5.90,
-        priceKg: null
-      }
-      
+      { id:'p01', name:'Laranja Pêra', desc:'Laranja pêra super doce.', img:'imagens/laranja_pera.jpg', priceUnit:4.50, priceKg:28.00 },
+      { id:'p02', name:'Batata Doce', desc:'Roxa doce feito mel.', img:'imagens/batata_doce.jpeg', priceUnit:null, priceKg:4.99 },
+      { id:'p03', name:'Limão Taiti', desc:'Limão fresco e suculento.', img:'imagens/limao_taiti.jpg', priceUnit:0.89, priceKg:7.99 },
+      { id:'p04', name:'Banana Prata', desc:'Banana docinha.', img:'imagens/banana_prata.jpg', priceUnit:5.90, priceKg:null },
+      { id:'p05', name:'Cará', desc:'Fresco e de ótima qualidade.', img:'imagens/cara.jpg', priceUnit:5.90, priceKg:null },
+      { id:'p06', name:'Tomate', desc:'Tomate maduro e fresco.', img:'imagens/tomate.jpg', priceUnit:5.90, priceKg:null },
+      { id:'p07', name:'Maça', desc:'Maçã suculenta.', img:'imagens/maca.jpg', priceUnit:5.90, priceKg:null },
+      { id:'p08', name:'Melancia', desc:'Melancia doce do fornecedor.', img:'imagens/melancia.jpg', priceUnit:5.90, priceKg:null },
+      { id:'p09', name:'Pera', desc:'Pera fresca e docinha.', img:'imagens/pera.jpg', priceUnit:5.90, priceKg:null }
     ];
 
-    // ====== ESTADO ======
-    let cart = []; // { productId, mode: 'kg'|'unit', qty, unitPrice }
 
-    // ====== FUNÇÕES AUXILIARES ======
-    function formatBRL(v){
-      // Certifique-se de calcular dígito por dígito se for necessário; aqui usamos toFixed e replace.
-      return 'R$ ' + Number(v).toFixed(2).replace('.', ',');
-    }
 
+    let cart = [];
+    function formatBRL(v){ return 'R$ ' + Number(v).toFixed(2).replace('.', ','); }
     function findProduct(id){ return products.find(p => p.id === id); }
 
-    // ====== RENDER PRODUTOS ======
     const productsList = document.getElementById('productsList');
     function renderProducts(){
       productsList.innerHTML = '';
-      products.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'product card';
-        div.innerHTML = `
+      products.forEach(p=>{
+        const div=document.createElement('div');
+        div.className='product card';
+        div.innerHTML=`
           <img src="${p.img}" alt="${p.name}">
           <div class="body">
             <h3>${p.name}</h3>
             <p class="small">${p.desc}</p>
             <div class="prices">
-              ${p.priceUnit !== null ? `<span>Unid: ${formatBRL(p.priceUnit)}</span>` : ''}
-              ${p.priceKg   !== null ? `<span>Kg: ${formatBRL(p.priceKg)}</span>` : ''}
+              ${p.priceUnit?`<span>Unid: ${formatBRL(p.priceUnit)}</span>`:''}
+              ${p.priceKg?`<span>Kg: ${formatBRL(p.priceKg)}</span>`:''}
             </div>
-
             <div class="controls">
-              <label style="font-size:13px;">
-                <input type="radio" name="mode_${p.id}" value="unit" ${p.priceUnit===null ? 'disabled' : 'checked'}>
-                Unidade
-              </label>
-              <label style="font-size:13px;">
-                <input type="radio" name="mode_${p.id}" value="kg" ${p.priceKg===null ? 'disabled' : ''}>
-                Kg
-              </label>
-
-              <input type="number" min="0.01" step="0.01" value="1" id="qty_${p.id}" title="Quantidade">
+              <label><input type="radio" name="mode_${p.id}" value="unit" ${!p.priceUnit?'disabled':'checked'}> Unid</label>
+              <label><input type="radio" name="mode_${p.id}" value="kg" ${!p.priceKg?'disabled':''}> Kg</label>
+              <input type="number" min="0.01" step="0.01" value="1" id="qty_${p.id}">
               <button data-id="${p.id}">Adicionar</button>
             </div>
-          </div>
-        `;
+          </div>`;
         productsList.appendChild(div);
-
-        // eventos
-        div.querySelector('button').addEventListener('click', () => {
-          const id = p.id;
-          const mode = div.querySelector(`input[name="mode_${id}"]:checked`)?.value;
-          const rawQty = document.getElementById(`qty_${id}`).value;
-          const qty = parseFloat(rawQty);
-          if (!mode || isNaN(qty) || qty <= 0) {
-            alert('Escolha modo e quantidade válida.');
-            return;
-          }
-          // Determina preço unitário usado
-          const price = (mode === 'kg') ? p.priceKg : p.priceUnit;
-          if (price === null || price === undefined) {
-            alert('Produto não disponível nesse modo.');
-            return;
-          }
-          addToCart({ productId: id, mode, qty, unitPrice: price });
+        div.querySelector('button').addEventListener('click',()=>{
+          const mode=div.querySelector(`input[name="mode_${p.id}"]:checked`)?.value;
+          const qty=parseFloat(document.getElementById(`qty_${p.id}`).value);
+          if(!mode||isNaN(qty)||qty<=0){alert('Escolha modo e quantidade válida.');return;}
+          const price=(mode==='kg')?p.priceKg:p.priceUnit;
+          addToCart({productId:p.id,mode,qty,unitPrice:price});
         });
       });
     }
 
-    // ====== CARRINHO ======
     function addToCart(item){
-      // Checa se já existe item com mesmo produto e modo -> soma quantidade
-      const exist = cart.find(c => c.productId === item.productId && c.mode === item.mode && c.unitPrice === item.unitPrice);
-      if (exist) {
-        exist.qty = Number((Number(exist.qty) + Number(item.qty)).toFixed(3));
-      } else {
-        cart.push({...item});
-      }
+      const exist=cart.find(c=>c.productId===item.productId&&c.mode===item.mode);
+      if(exist) exist.qty+=item.qty; else cart.push(item);
       renderCart();
     }
-
-    function removeFromCart(index){
-      cart.splice(index,1);
-      renderCart();
-    }
-
-    function clearCart(){
-      if (!confirm('Limpar todo o carrinho?')) return;
-      cart = [];
-      renderCart();
-    }
-
-    // cálculo total
-    function calcTotal(){
-      let total = 0;
-      for (const it of cart) total += Number(it.unitPrice) * Number(it.qty);
-      return Number(total);
-    }
+    function removeFromCart(i){cart.splice(i,1);renderCart();}
+    function clearCart(){ if(confirm('Limpar carrinho?')){cart=[];renderCart();} }
+    function calcTotal(){ return cart.reduce((s,it)=>s+(it.unitPrice*it.qty),0); }
 
     function renderCart(){
-      const container = document.getElementById('cartItems');
-      container.innerHTML = '';
-      if (cart.length === 0) {
-        container.innerHTML = '<div class="small">Nenhum item ainda.</div>';
-      } else {
-        cart.forEach((it, idx) => {
-          const p = findProduct(it.productId);
-          const sub = Number(it.unitPrice) * Number(it.qty);
-          const div = document.createElement('div');
-          div.className = 'cart-item';
-          div.innerHTML = `
-            <img src="${p.img}" alt="${p.name}">
+      const el=document.getElementById('cartItems');
+      el.innerHTML='';
+      if(cart.length===0){ el.innerHTML='<div class="small">Nenhum item ainda.</div>'; }
+      else{
+        cart.forEach((it,i)=>{
+          const p=findProduct(it.productId);
+          el.innerHTML+=`
+          <div class="cart-item">
+            <img src="${p.img}">
             <div class="info">
-              <div style="display:flex;justify-content:space-between">
-                <div><strong>${p.name}</strong></div>
-                <div class="small">${formatBRL(sub)}</div>
-              </div>
-              <div class="small">${it.mode === 'kg' ? it.qty+' kg' : it.qty+' un.'} × ${formatBRL(it.unitPrice)}</div>
+              <strong>${p.name}</strong><br>
+              <span class="small">${it.qty} ${it.mode==='kg'?'kg':'un.'} × ${formatBRL(it.unitPrice)}</span>
             </div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <button data-idx="${idx}" style="background:#e74c3c">Remover</button>
-            </div>
-          `;
-          container.appendChild(div);
-          div.querySelector('button').addEventListener('click', ()=> removeFromCart(idx));
+            <button style="background:#e74c3c" onclick="removeFromCart(${i})">Remover</button>
+          </div>`;
         });
       }
-      document.getElementById('cartTotal').textContent = 'Total: ' + formatBRL(calcTotal());
+      document.getElementById('cartTotal').textContent='Total: '+formatBRL(calcTotal());
     }
 
-    // ====== WhatsApp: gerar mensagem e abrir ======
     function generateMessage(){
-      if (cart.length === 0) { alert('Carrinho vazio.'); return ''; }
-      const lines = [];
-      lines.push('Olá, gostaria de um orçamento:');
-      lines.push('');
-      cart.forEach((it, idx) => {
-        const p = findProduct(it.productId);
-        const qtyLabel = it.mode === 'kg' ? `${it.qty} kg` : `${it.qty} un.`;
-        const subtotal = (Number(it.unitPrice) * Number(it.qty)).toFixed(2);
-        lines.push(`${idx+1}. ${p.name} — ${qtyLabel} @ ${formatBRL(it.unitPrice)} = R$ ${Number(subtotal).toFixed(2).replace('.',',')}`);
+      const name=document.getElementById('clientName').value.trim()||'Não informado';
+      const phone=document.getElementById('clientPhone').value.trim()||'Não informado';
+      const addr=document.getElementById('clientAddress').value.trim()||'Não informado';
+      const troco=document.getElementById('clientChange').value.trim()||'Não informado';
+      const lines=['🛒 *NOVO ORÇAMENTO DE CLIENTE*','','📦 *Itens:*',''];
+      cart.forEach((it,i)=>{
+        const p=findProduct(it.productId);
+        const subtotal=it.unitPrice*it.qty;
+        lines.push(`${i+1}. ${p.name} — ${it.qty} ${it.mode} a ${formatBRL(it.unitPrice)} = ${formatBRL(subtotal)}`);
       });
-      lines.push('');
-      lines.push('Total: ' + formatBRL(calcTotal()));
-      lines.push('');
-      lines.push('Nome:');
-      lines.push('Telefone:');
-      lines.push('Observações:');
+      lines.push('',`💰 *Total:* ${formatBRL(calcTotal())}`,'',`👤 *Cliente:* ${name}`,'📞 '+phone,'🏠 '+addr,'💵 Troco para: '+troco,'','🟢 Enviado automaticamente pelo catálogo digital.');
       return lines.join('\n');
     }
 
-    function sendWhatsApp(){
-      if (!sellerPhone || sellerPhone.trim() === '') {
-        alert('Telefone do vendedor não configurado. Edite a variável sellerPhone no código.');
-        return;
-      }
-      const message = generateMessage();
-      if (!message) return;
-      // encode
-      const encoded = encodeURIComponent(message);
-      // usar API do WhatsApp (web) ou wa.me — aqui usamos api.whatsapp.com
-      const url = `https://api.whatsapp.com/send?phone=${sellerPhone}&text=${encoded}`;
-      window.open(url, '_blank');
+    function gerarPix(nome,chavePix,cidade,valor,descricao){
+      const payload=PixQRCode({name:nome,city:cidade,pixKey:chavePix,message:descricao,amount:valor});
+      QRCode.toDataURL(payload.payload,{width:200},(err,url)=>{
+        if(err)return console.error(err);
+        document.getElementById('pix').innerHTML=`
+          <p><b>Valor:</b> R$ ${valor.toFixed(2)}</p>
+          <img src="${url}" alt="QR Code PIX">
+          <p><small>Código copia e cola:</small></p>
+          <textarea readonly rows="3" style="width:100%">${payload.payload}</textarea>`;
+      });
     }
 
-    // ====== INICIALIZAÇÃO ======
-    document.getElementById('sendWhats').addEventListener('click', sendWhatsApp);
-    document.getElementById('clearBtn').addEventListener('click', clearCart);
-    renderProducts();
-    renderCart();
+    function sendWhatsApp(){
+      if(cart.length===0){alert('Carrinho vazio.');return;}
+      const msg=generateMessage();
+      const valorTotal=calcTotal();
+      gerarPix("HORTIFRUTI SANTO ANTÔNIO","suachavepix@banco.com","Recife",valorTotal,"Pagamento pedido Hortifruti");
+      const url=`https://wa.me/${sellerPhone}?text=${encodeURIComponent(msg)}`;
+      window.open(url,'_blank');
+    }
 
-    // ====== NOTAS IMPORTANTES (edite conforme precisar) ======
-    // - Para mudar produtos, altere o array `products` acima (id, nome, desc, img, priceUnit, priceKg).
-    // - Se um produto não for vendido por unidade, defina priceUnit: null. Mesmo para não vendido por kg -> priceKg: null.
-    // - Substitua sellerPhone com o número do vendedor no formato internacional (ex: 5511999999999).
-    // - O botão abre o WhatsApp Web / App com a mensagem pronta; o cliente só confirma e envia.
+    document.getElementById('sendWhats').addEventListener('click',sendWhatsApp);
+    document.getElementById('clearBtn').addEventListener('click',clearCart);
+    renderProducts(); renderCart();
   </script>
+
+  <!-- Lib para gerar QR Code -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<!-- Função PIX simplificada (sem depender da biblioteca externa) -->
+<script>
+  function gerarPix(nome, chavePix, cidade, valor, descricao) {
+    // Gera um payload PIX básico
+    const payload = `
+00020126360014BR.GOV.BCB.PIX0114${chavePix}520400005303986540${valor.toFixed(2)}5802BR5913${nome.substring(0, 13)}6009${cidade.substring(0, 9)}62070503***6304
+    `.replace(/\s+/g, '');
+
+    // Gera o QR Code a partir desse payload
+    QRCode.toDataURL(payload, { width: 200 }, function (err, url) {
+      if (err) return console.error(err);
+      
+      // Mostra o QR Code na tela
+      const pixDiv = document.getElementById('pix');
+      pixDiv.innerHTML = `
+        <p><b>Valor:</b> R$ ${valor.toFixed(2)}</p>
+        <img src="${url}" alt="QR Code PIX">
+        <p><small>Código copia e cola:</small></p>
+        <textarea readonly rows="3" style="width:100%">${payload}</textarea>
+      `;
+    });
+  }
+</script>
+
+ <!-- Modal de login do administrador -->
+  <div id="adminLogin" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.3); z-index:999;">
+    <h3>Login Administrador</h3>
+    <label>Senha:</label><br>
+    <input type="password" id="adminPass" style="padding:6px; margin-top:6px; width:100%;"><br>
+    <button id="adminSubmit" style="margin-top:10px;">Entrar</button>
+    <button id="adminCancel" style="margin-top:10px; margin-left:5px; background:#ccc; color:#000;">Cancelar</button>
+  </div>
+
+  <script>
+  const ADMIN_PASSWORD = "hortifruti@2026"; // Coloque aqui a sua senha de administrador
+
+  const adminLink = document.getElementById('adminLink');
+  const adminLogin = document.getElementById('adminLogin');
+  const adminPassInput = document.getElementById('adminPass');
+  const adminSubmit = document.getElementById('adminSubmit');
+  const adminCancel = document.getElementById('adminCancel');
+
+  // Abrir modal ao clicar no botão Painel Admin
+  adminLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    adminPassInput.value = ''; // limpa o campo
+    adminLogin.style.display = 'block';
+    adminPassInput.focus();
+  });
+
+  // Cancelar login
+  adminCancel.addEventListener('click', () => {
+    adminLogin.style.display = 'none';
+  });
+
+  // Submeter senha
+  adminSubmit.addEventListener('click', () => {
+    const entered = adminPassInput.value;
+    if(entered === ADMIN_PASSWORD){
+      alert("Acesso concedido! Você pode adicionar, editar e remover produtos.");
+      adminLogin.style.display = 'none';
+      // Aqui você chama a função para abrir o painel admin real
+      openAdminPanel();
+    } else {
+      alert("Senha incorreta!");
+      adminPassInput.value = '';
+      adminPassInput.focus();
+    }
+  });
+
+  // Função de exemplo para abrir o painel admin
+  function openAdminPanel(){
+  let action = prompt("Digite: \n1 - Adicionar produto\n2 - Editar produto\n3 - Remover produto");
+  if(!action) return;
+
+  if(action === "1"){ // Adicionar
+    const id = 'p' + (products.length + 1).toString().padStart(2,'0');
+    const name = prompt('Nome do produto:');
+    if(!name) return;
+    const desc = prompt('Descrição:') || '';
+    const priceUnit = parseFloat(prompt('Preço por unidade (ou deixe vazio)')?.replace(',','.')) || null;
+    const priceKg = parseFloat(prompt('Preço por Kg (ou deixe vazio)')?.replace(',','.')) || null;
+    const img = prompt('URL da imagem:') || '';
+    products.push({id, name, desc, priceUnit, priceKg, img});
+    localStorage.setItem('products', JSON.stringify(products));
+    renderProducts();
+    alert("Produto adicionado!");
+  } 
+  else if(action === "2"){ // Editar
+    // Lista todos os produtos
+    let list = "Produtos:\n";
+    products.forEach((p, i) => {
+      list += `${i + 1} - ${p.name} (Unid: ${p.priceUnit ?? '-'} / Kg: ${p.priceKg ?? '-'})\n`;
+    });
+    const idx = parseInt(prompt(list + "\nDigite o número do produto para editar:")) - 1;
+    if(idx < 0 || idx >= products.length) { alert("Produto inválido!"); return; }
+    const p = products[idx];
+    p.name = prompt('Nome do produto:', p.name) || p.name;
+    p.desc = prompt('Descrição:', p.desc) || p.desc;
+    const unit = prompt('Preço por unidade (deixe vazio para não alterar):', p.priceUnit ?? '');
+    p.priceUnit = unit !== '' ? parseFloat(unit.replace(',','.')) : p.priceUnit;
+    const kg = prompt('Preço por Kg (deixe vazio para não alterar):', p.priceKg ?? '');
+    p.priceKg = kg !== '' ? parseFloat(kg.replace(',','.')) : p.priceKg;
+    p.img = prompt('URL da imagem:', p.img) || p.img;
+    localStorage.setItem('products', JSON.stringify(products));
+    renderProducts();
+    alert("Produto editado!");
+  }
+  else if(action === "3"){ // Remover
+    // Lista todos os produtos
+    let list = "Produtos:\n";
+    products.forEach((p, i) => {
+      list += `${i + 1} - ${p.name}\n`;
+    });
+    const idx = parseInt(prompt(list + "\nDigite o número do produto para remover:")) - 1;
+    if(idx < 0 || idx >= products.length) { alert("Produto inválido!"); return; }
+    if(confirm(`Deseja realmente remover ${products[idx].name}?`)){
+      products.splice(idx,1);
+      localStorage.setItem('products', JSON.stringify(products));
+      renderProducts();
+      alert("Produto removido!");
+    }
+  }
+  else{
+    alert("Opção inválida!");
+  }
+}
+
+
+</script>
+
+
 </body>
 </html>
