@@ -24,13 +24,8 @@
       gap:16px;
       margin-bottom:18px;
     }
-    header img {
-      width:56px;
-      height:56px;
-      border-radius:8px;
-      object-fit:cover;
-    }
-    header h1 { font-size:26px; margin:0; }
+    header img { width:56px; height:56px; border-radius:8px; object-fit:cover; }
+    header h1 { font-size:20px; margin:0; }
     .layout { display:grid; grid-template-columns:1fr 380px; gap:18px; }
     .card { background:var(--card-bg); border-radius:10px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
     .products { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
@@ -54,6 +49,8 @@
     .note { font-size:13px; color:var(--muted); margin-top:8px; }
     .btn-secondary { background:#2d9cdb; }
     footer { margin-top:16px; text-align:center; color:var(--muted); font-size:13px; }
+    .admin-controls { display:flex; gap:8px; margin-top:8px; }
+    .produto-admin { border:1px solid #eee; padding:8px; border-radius:6px; margin-bottom:8px; }
     @media(max-width:900px){ .layout{grid-template-columns:1fr} }
   </style>
 </head>
@@ -61,17 +58,14 @@
 
   <header>
     <img src="imagens/logo.jpeg" alt="Logo">
-    <!--<div><img src="imagens/compras_verduras.png" alt=""></div>-->
-    <div>
-      
-      <h1>Hortifruti Santo Antônio : Lugar de comprar barato</h1>
-      
-        
-      
+    <div style="flex:1">
+      <h1>Hortifruti Santo Antônio — Lugar de comprar barato</h1>
       <div class="small">Selecione os produtos, gere o orçamento e envie pelo WhatsApp</div>
-                <!-- Botão Painel Admin -->
-      <a href="#" id="adminLink" style="margin-left:16px; color:#d35400; font-weight:bold;">Painel Admin</a>
+    </div>
 
+    <!-- Botão Painel Admin -->
+    <div>
+      <a href="#" id="adminLink" style="color:#d35400; font-weight:bold;">Painel Admin</a>
     </div>
   </header>
 
@@ -107,6 +101,7 @@
           <button id="clearBtn" class="btn-secondary">Limpar</button>
           <button id="sendWhats" style="background:#25d366">Enviar pelo WhatsApp</button>
         </div>
+
         <div id="pix" style="margin-top:15px;text-align:center"></div>
 
         <div class="note">
@@ -116,317 +111,336 @@
     </aside>
   </div>
 
-  <footer>Arquivo local — salve como <code>catalogo.html</code> e abra no navegador.</footer>
+  <footer>Arquivo local — salve como <code>catalogo.html</code> e abra no navegador (ou publique no GitHub Pages).</footer>
 
-  <!-- bibliotecas primeiro -->
-  
+  <!-- Firebase + Firestore via CDN (module) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, updateDoc, getDocs } 
+      from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-  <!-- seu código -->
-  <script>
+    // ====== Coloque SUA config do Firebase aqui (já você tem) ======
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjzWfLJ5NbmD2MlfycN0FJc3UnvyeCX9s",
+      authDomain: "catalogo-hortifruti.firebaseapp.com",
+      projectId: "catalogo-hortifruti",
+      storageBucket: "catalogo-hortifruti.firebasestorage.app",
+      messagingSenderId: "38002725935",
+      appId: "1:38002725935:web:91b94df5051a6317f2a2da"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // número do vendedor para WhatsApp
     const sellerPhone = '5581986176915';
 
-    // ====== Carregar produtos do localStorage ======
-let products = JSON.parse(localStorage.getItem('products')) || [
-  { id:'p01', name:'Laranja Pêra', desc:'Laranja pêra super doce.', img:'imagens/laranja_pera.jpg', priceUnit:4.50, priceKg:28.00 },
-  { id:'p02', name:'Batata Doce', desc:'Roxa doce feito mel.', img:'imagens/batata_doce.jpeg', priceUnit:null, priceKg:4.99 },
-  { id:'p03', name:'Limão Taiti', desc:'Limão fresco e suculento.', img:'imagens/limao_taiti.jpg', priceUnit:0.89, priceKg:7.99 },
-  { id:'p04', name:'Banana Prata', desc:'Banana docinha.', img:'imagens/banana_prata.jpg', priceUnit:5.90, priceKg:null },
-  { id:'p05', name:'Cará', desc:'Fresco e de ótima qualidade.', img:'imagens/cara.jpg', priceUnit:5.90, priceKg:null },
-  { id:'p06', name:'Tomate', desc:'Tomate maduro e fresco.', img:'imagens/tomate.jpg', priceUnit:5.90, priceKg:null },
-  { id:'p07', name:'Maça', desc:'Maçã suculenta.', img:'imagens/maca.jpg', priceUnit:5.90, priceKg:null },
-  { id:'p08', name:'Melancia', desc:'Melancia doce do fornecedor.', img:'imagens/melancia.jpg', priceUnit:5.90, priceKg:null },
-  { id:'p09', name:'Pera', desc:'Pera fresca e docinha.', img:'imagens/pera.jpg', priceUnit:5.90, priceKg:null }
-];
-
-  localStorage.setItem('products', JSON.stringify(products));
-
-
+    // cart local (cliente)
     let cart = [];
-    function formatBRL(v){ return 'R$ ' + Number(v).toFixed(2).replace('.', ','); }
-    function findProduct(id){ return products.find(p => p.id === id); }
 
-    const productsList = document.getElementById('productsList');
-    function renderProducts(){
-      productsList.innerHTML = '';
+    function formatBRL(v){ return 'R$ ' + Number(v||0).toFixed(2).replace('.', ','); }
+
+    // mapear documento Firestore para formato que nosso app usa
+    function mapDocToProduct(docSnap){
+      const data = docSnap.data();
+      // aceita formatos variados (nome / name / preco / priceUnit)
+      const name = data.name ?? data.nome ?? 'Produto sem nome';
+      const desc = data.desc ?? data.descricao ?? data.descrição ?? '';
+      const priceUnit = (data.priceUnit ?? data.preco ?? data.preço ?? data.price) ?? null;
+      const priceKg = (data.priceKg ?? data.price_per_kg ?? null);
+      const img = data.img ?? data.image ?? data.url ?? '';
+      return {
+        id: docSnap.id,
+        name,
+        desc,
+        priceUnit: priceUnit !== null ? Number(priceUnit) : null,
+        priceKg: priceKg !== null ? Number(priceKg) : null,
+        img
+      };
+    }
+
+    // render produtos (real-time via onSnapshot)
+    const productsListEl = document.getElementById('productsList');
+    let produtosSnapshotUnsub = null;
+
+    function renderProducts(products){
+      productsListEl.innerHTML = '';
       products.forEach(p=>{
-        const div=document.createElement('div');
-        div.className='product card';
-        div.innerHTML=`
-          <img src="${p.img}" alt="${p.name}">
+        const div = document.createElement('div');
+        div.className = 'product card';
+        div.innerHTML = `
+          <img src="${p.img || 'https://via.placeholder.com/400x300?text=Sem+imagem'}" alt="${p.name}">
           <div class="body">
             <h3>${p.name}</h3>
-            <p class="small">${p.desc}</p>
+            <p class="small">${p.desc || ''}</p>
             <div class="prices">
-              ${p.priceUnit?`<span>Unid: ${formatBRL(p.priceUnit)}</span>`:''}
-              ${p.priceKg?`<span>Kg: ${formatBRL(p.priceKg)}</span>`:''}
+              ${p.priceUnit!=null?`<span>Unid: ${formatBRL(p.priceUnit)}</span>`: ''}
+              ${p.priceKg!=null?`<span>Kg: ${formatBRL(p.priceKg)}</span>`: ''}
             </div>
             <div class="controls">
-              <label><input type="radio" name="mode_${p.id}" value="unit" ${!p.priceUnit?'disabled':'checked'}> Unid</label>
-              <label><input type="radio" name="mode_${p.id}" value="kg" ${!p.priceKg?'disabled':''}> Kg</label>
+              <label><input type="radio" name="mode_${p.id}" value="unit" ${p.priceUnit==null?'disabled':'checked'}> Unid</label>
+              <label><input type="radio" name="mode_${p.id}" value="kg" ${p.priceKg==null?'disabled':''}> Kg</label>
               <input type="number" min="0.01" step="0.01" value="1" id="qty_${p.id}">
               <button data-id="${p.id}">Adicionar</button>
             </div>
           </div>`;
-        productsList.appendChild(div);
-        div.querySelector('button').addEventListener('click',()=>{
-          const mode=div.querySelector(`input[name="mode_${p.id}"]:checked`)?.value;
-          const qty=parseFloat(document.getElementById(`qty_${p.id}`).value);
-          if(!mode||isNaN(qty)||qty<=0){alert('Escolha modo e quantidade válida.');return;}
-          const price=(mode==='kg')?p.priceKg:p.priceUnit;
-          addToCart({productId:p.id,mode,qty,unitPrice:price});
+        productsListEl.appendChild(div);
+
+        div.querySelector('button').addEventListener('click', ()=>{
+          const mode = div.querySelector(`input[name="mode_${p.id}"]:checked`)?.value;
+          const qty = parseFloat(document.getElementById(`qty_${p.id}`).value);
+          if(!mode || isNaN(qty) || qty <= 0){ alert('Escolha modo e quantidade válida.'); return; }
+          const price = (mode === 'kg') ? p.priceKg : p.priceUnit;
+          addToCart({ productId: p.id, mode, qty, unitPrice: price, name: p.name });
         });
       });
     }
 
+    // carregar produtos em tempo real
+    function startRealtimeProducts(){
+      const col = collection(db, 'produtos');
+      produtosSnapshotUnsub = onSnapshot(col, (snapshot)=>{
+        const items = snapshot.docs.map(mapDocToProduct);
+        renderProducts(items);
+      }, (err)=>{ console.error('Erro onSnapshot produtos:', err); alert('Erro ao carregar produtos. Verifique console.'); });
+    }
+
+    startRealtimeProducts();
+
+    // CART
     function addToCart(item){
-      const exist=cart.find(c=>c.productId===item.productId&&c.mode===item.mode);
-      if(exist) exist.qty+=item.qty; else cart.push(item);
+      const exist = cart.find(c=>c.productId===item.productId && c.mode===item.mode);
+      if(exist) exist.qty = Number(exist.qty) + Number(item.qty);
+      else cart.push(item);
       renderCart();
     }
-    function removeFromCart(i){cart.splice(i,1);renderCart();}
-    function clearCart(){ if(confirm('Limpar carrinho?')){cart=[];renderCart();} }
-    function calcTotal(){ return cart.reduce((s,it)=>s+(it.unitPrice*it.qty),0); }
+    function removeFromCart(i){ cart.splice(i,1); renderCart(); }
+    function clearCart(){ if(confirm('Limpar carrinho?')){ cart=[]; renderCart(); } }
+    function calcTotal(){ return cart.reduce((s,it)=> s + (Number(it.unitPrice||0) * Number(it.qty||0)), 0); }
 
     function renderCart(){
-      const el=document.getElementById('cartItems');
-      el.innerHTML='';
-      if(cart.length===0){ el.innerHTML='<div class="small">Nenhum item ainda.</div>'; }
-      else{
+      const el = document.getElementById('cartItems');
+      el.innerHTML = '';
+      if(cart.length === 0){ el.innerHTML = '<div class="small">Nenhum item ainda.</div>'; }
+      else {
         cart.forEach((it,i)=>{
-          const p=findProduct(it.productId);
-          el.innerHTML+=`
-          <div class="cart-item">
-            <img src="${p.img}">
-            <div class="info">
-              <strong>${p.name}</strong><br>
-              <span class="small">${it.qty} ${it.mode==='kg'?'kg':'un.'} × ${formatBRL(it.unitPrice)}</span>
+          const name = it.name || it.productId;
+          el.innerHTML += `
+            <div class="cart-item">
+              <div style="width:56px;height:40px;background:#f4f4f4;border-radius:6px;display:flex;align-items:center;justify-content:center">${(name[0]||'')}</div>
+              <div class="info">
+                <strong>${name}</strong><br>
+                <span class="small">${it.qty} ${it.mode==='kg'?'kg':'un.'} × ${formatBRL(it.unitPrice)}</span>
+              </div>
+              <button style="background:#e74c3c" onclick="removeFromCart(${i})">Remover</button>
             </div>
-            <button style="background:#e74c3c" onclick="removeFromCart(${i})">Remover</button>
-          </div>`;
+          `;
         });
       }
-      document.getElementById('cartTotal').textContent='Total: '+formatBRL(calcTotal());
+      document.getElementById('cartTotal').textContent = 'Total: ' + formatBRL(calcTotal());
     }
 
+    // gerar mensagem e PIX
     function generateMessage(){
-      const name=document.getElementById('clientName').value.trim()||'Não informado';
-      const phone=document.getElementById('clientPhone').value.trim()||'Não informado';
-      const addr=document.getElementById('clientAddress').value.trim()||'Não informado';
-      const troco=document.getElementById('clientChange').value.trim()||'Não informado';
-      const lines=['🛒 *NOVO ORÇAMENTO DE CLIENTE*','','📦 *Itens:*',''];
+      const name = document.getElementById('clientName').value.trim() || 'Não informado';
+      const phone = document.getElementById('clientPhone').value.trim() || 'Não informado';
+      const addr = document.getElementById('clientAddress').value.trim() || 'Não informado';
+      const troco = document.getElementById('clientChange').value.trim() || 'Não informado';
+      const lines = ['🛒 *NOVO ORÇAMENTO DE CLIENTE*','','📦 *Itens:*',''];
       cart.forEach((it,i)=>{
-        const p=findProduct(it.productId);
-        const subtotal=it.unitPrice*it.qty;
-        lines.push(`${i+1}. ${p.name} — ${it.qty} ${it.mode} a ${formatBRL(it.unitPrice)} = ${formatBRL(subtotal)}`);
+        const subtotal = Number(it.unitPrice||0) * Number(it.qty||0);
+        lines.push(`${i+1}. ${it.name || it.productId} — ${it.qty} ${it.mode} a ${formatBRL(it.unitPrice)} = ${formatBRL(subtotal)}`);
       });
-      lines.push('',`💰 *Total:* ${formatBRL(calcTotal())}`,'',`👤 *Cliente:* ${name}`,'📞 '+phone,'🏠 '+addr,'💵 Troco para: '+troco,'','🟢 Enviado automaticamente pelo catálogo digital.');
+      lines.push('', `💰 *Total:* ${formatBRL(calcTotal())}`, '', `👤 *Cliente:* ${name}`, '📞 '+phone, '🏠 '+addr, '💵 Troco para: '+troco, '', '🟢 Enviado automaticamente pelo catálogo digital.');
       return lines.join('\n');
     }
 
-    function gerarPix(nome,chavePix,cidade,valor,descricao){
-      const payload=PixQRCode({name:nome,city:cidade,pixKey:chavePix,message:descricao,amount:valor});
-      QRCode.toDataURL(payload.payload,{width:200},(err,url)=>{
-        if(err)return console.error(err);
-        document.getElementById('pix').innerHTML=`
-          <p><b>Valor:</b> R$ ${valor.toFixed(2)}</p>
+    // Função simples para montar um payload PIX (SIMPLIFICADO)
+    function buildPixPayload(nometitular, cidade, chavePix, valor, descricao){
+      // Simples e não-certificado — para uso local/demonstração. Para produção use biblioteca oficial.
+      const amount = Number(valor||0).toFixed(2);
+      let payload = `00020126360014BR.GOV.BCB.PIX01${String(chavePix).length.toString().padStart(2,'0')}${chavePix}520400005303986540${amount}5802BR5913${nometitular.substring(0,13)}6009${cidade.substring(0,9)}62070503***6304`;
+      payload = payload.replace(/\s+/g,'');
+      return payload;
+    }
+
+    // gerar PIX visual (QR code + copia e cola)
+    function gerarPix(nome, chavePix, cidade, valor, descricao){
+      const payload = buildPixPayload(nome, cidade, chavePix, valor, descricao);
+      // usa qrcode lib abaixo (CDN)
+      QRCode.toDataURL(payload, { width: 200 }, function(err, url){
+        if(err){ console.error(err); alert('Erro ao gerar QR Code'); return; }
+        document.getElementById('pix').innerHTML = `
+          <p><b>Valor:</b> ${formatBRL(valor)}</p>
           <img src="${url}" alt="QR Code PIX">
           <p><small>Código copia e cola:</small></p>
-          <textarea readonly rows="3" style="width:100%">${payload.payload}</textarea>`;
+          <textarea readonly rows="3" style="width:100%">${payload}</textarea>
+        `;
       });
     }
 
     function sendWhatsApp(){
-      if(cart.length===0){alert('Carrinho vazio.');return;}
-      const msg=generateMessage();
-      const valorTotal=calcTotal();
-      gerarPix("HORTIFRUTI SANTO ANTÔNIO","suachavepix@banco.com","Recife",valorTotal,"Pagamento pedido Hortifruti");
-      const url=`https://wa.me/${sellerPhone}?text=${encodeURIComponent(msg)}`;
-      window.open(url,'_blank');
+      if(cart.length === 0){ alert('Carrinho vazio.'); return; }
+      const msg = generateMessage();
+      const total = calcTotal();
+      // gerar PIX visual
+      gerarPix("HORTIFRUTI SANTO ANTONIO", "suachavepix@banco.com", "Recife", total, "Pagamento pedido Hortifruti");
+      // abrir WhatsApp
+      const url = `https://wa.me/${sellerPhone}?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
     }
 
-    document.getElementById('sendWhats').addEventListener('click',sendWhatsApp);
-    document.getElementById('clearBtn').addEventListener('click',clearCart);
-    renderProducts(); renderCart();
+    // listeners botoes
+    document.getElementById('clearBtn').addEventListener('click', clearCart);
+    document.getElementById('sendWhats').addEventListener('click', sendWhatsApp);
+
+    // ===== ADMIN PANEL =====
+    const adminLink = document.getElementById('adminLink');
+
+    // senha simples (está no código) — troque se quiser
+    const ADMIN_PASSWORD = "hortifruti@2026";
+
+    // modal simples (criamos dinamicamente)
+    const adminLoginModal = document.createElement('div');
+    adminLoginModal.style.display = 'none';
+    adminLoginModal.style.position = 'fixed';
+    adminLoginModal.style.top = '20%';
+    adminLoginModal.style.left = '50%';
+    adminLoginModal.style.transform = 'translateX(-50%)';
+    adminLoginModal.style.background = '#fff';
+    adminLoginModal.style.padding = '18px';
+    adminLoginModal.style.borderRadius = '8px';
+    adminLoginModal.style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)';
+    adminLoginModal.style.zIndex = '9999';
+    adminLoginModal.innerHTML = `
+      <h3>Login Administrador</h3>
+      <label>Senha:</label><br>
+      <input type="password" id="adminPassLocal" style="padding:6px;margin-top:6px;width:100%"><br>
+      <div style="margin-top:10px;text-align:right">
+        <button id="adminCancelLocal" style="background:#ccc;color:#000;padding:6px 10px;margin-right:6px">Cancelar</button>
+        <button id="adminSubmitLocal" style="background:var(--accent);color:#fff;padding:6px 10px">Entrar</button>
+      </div>
+    `;
+    document.body.appendChild(adminLoginModal);
+    document.getElementById('adminLink').addEventListener('click', (e)=>{ e.preventDefault(); adminLoginModal.style.display='block'; document.getElementById('adminPassLocal').value=''; document.getElementById('adminPassLocal').focus(); });
+    document.getElementById('adminCancelLocal').addEventListener('click', ()=> adminLoginModal.style.display='none');
+    document.getElementById('adminSubmitLocal').addEventListener('click', ()=> {
+      const v = document.getElementById('adminPassLocal').value;
+      if(v === ADMIN_PASSWORD){ adminLoginModal.style.display='none'; openAdminPanel(); }
+      else { alert('Senha incorreta!'); document.getElementById('adminPassLocal').value=''; document.getElementById('adminPassLocal').focus(); }
+    });
+
+    // função que abre painel admin com opções e usa Firestore para CRUD
+    async function openAdminPanel(){
+      // painel simples com botões
+      const panel = document.createElement('div');
+      panel.style.position='fixed';
+      panel.style.top='10%';
+      panel.style.left='50%';
+      panel.style.transform='translateX(-50%)';
+      panel.style.width='90%';
+      panel.style.maxWidth='720px';
+      panel.style.background='#fff';
+      panel.style.padding='12px';
+      panel.style.borderRadius='8px';
+      panel.style.boxShadow='0 6px 24px rgba(0,0,0,0.2)';
+      panel.style.zIndex='9999';
+
+      panel.innerHTML = `
+        <h3>Painel Admin</h3>
+        <div class="admin-controls">
+          <button id="btnAddAdmin">Adicionar Produto</button>
+          <button id="btnCloseAdmin" style="background:#ccc;color:#000">Fechar</button>
+        </div>
+        <div id="adminProductsList" style="margin-top:12px; max-height:60vh; overflow:auto"></div>
+      `;
+      document.body.appendChild(panel);
+
+      panel.querySelector('#btnCloseAdmin').addEventListener('click', ()=>{ panel.remove(); });
+
+      async function loadAdminProducts(){
+        const listEl = panel.querySelector('#adminProductsList');
+        listEl.innerHTML = '<div class="small">Carregando...</div>';
+        const snap = await getDocs(collection(db,'produtos'));
+        listEl.innerHTML = '';
+        snap.forEach(d=>{
+          const p = mapDocToProduct(d);
+          const node = document.createElement('div');
+          node.className = 'produto-admin';
+          node.innerHTML = `
+            <strong>${p.name}</strong> <span style="color:var(--muted)">(${p.id})</span><br>
+            <div class="small">${p.desc || ''}</div>
+            <div style="margin-top:8px">
+              <button data-id="${d.id}" class="btn-edit">Editar</button>
+              <button data-id="${d.id}" class="btn-del" style="background:#e74c3c">Remover</button>
+            </div>
+          `;
+          listEl.appendChild(node);
+        });
+
+        // attach edit/delete
+        listEl.querySelectorAll('.btn-edit').forEach(b=>{
+          b.addEventListener('click', async ()=> {
+            const id = b.dataset.id;
+            // pega doc atual
+            const novoNome = prompt('Nome do produto:') || null;
+            if(novoNome === null) return;
+            const novaDesc = prompt('Descrição:') || '';
+            const novoPrecoUnit = prompt('Preço por unidade (deixe vazio para null):') || '';
+            const novoPrecoKg = prompt('Preço por kg (deixe vazio para null):') || '';
+            const novaImg = prompt('URL da imagem:') || '';
+            const ref = doc(db,'produtos', id);
+            const payload = {};
+            if(novoNome !== null) payload.name = novoNome;
+            payload.desc = novaDesc;
+            payload.img = novaImg;
+            payload.priceUnit = novoPrecoUnit === '' ? null : Number(novoPrecoUnit.replace(',','.'));
+            payload.priceKg = novoPrecoKg === '' ? null : Number(novoPrecoKg.replace(',','.'));
+            await updateDoc(ref, payload);
+            alert('Produto atualizado!');
+            loadAdminProducts();
+          });
+        });
+
+        listEl.querySelectorAll('.btn-del').forEach(b=>{
+          b.addEventListener('click', async ()=> {
+            const id = b.dataset.id;
+            if(confirm('Deseja remover este produto?')){
+              await deleteDoc(doc(db,'produtos',id));
+              alert('Removido com sucesso!');
+              loadAdminProducts();
+            }
+          });
+        });
+      }
+
+      panel.querySelector('#btnAddAdmin').addEventListener('click', async ()=>{
+        const nome = prompt('Nome do produto:'); if(!nome) return;
+        const descricao = prompt('Descrição:') || '';
+        const precoUnit = prompt('Preço por unidade (ou vazio):') || '';
+        const precoKg = prompt('Preço por kg (ou vazio):') || '';
+        const img = prompt('URL da imagem (pública):') || '';
+        await addDoc(collection(db,'produtos'), {
+          name: nome,
+          desc: descricao,
+          img: img,
+          priceUnit: precoUnit === '' ? null : Number(precoUnit.replace(',','.')),
+          priceKg: precoKg === '' ? null : Number(precoKg.replace(',','.'))
+        });
+        alert('Produto adicionado!');
+        loadAdminProducts();
+      });
+
+      // inicial
+      loadAdminProducts();
+    }
+
+    // expose removeFromCart for onclick inline
+    window.removeFromCart = removeFromCart;
+
   </script>
 
-  <!-- Lib para gerar QR Code -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
-<!-- Função PIX simplificada (sem depender da biblioteca externa) -->
-<script>
-  function gerarPix(nome, chavePix, cidade, valor, descricao) {
-    // Gera um payload PIX básico
-    const payload = `
-00020126360014BR.GOV.BCB.PIX0114${chavePix}520400005303986540${valor.toFixed(2)}5802BR5913${nome.substring(0, 13)}6009${cidade.substring(0, 9)}62070503***6304
-    `.replace(/\s+/g, '');
-
-    // Gera o QR Code a partir desse payload
-    QRCode.toDataURL(payload, { width: 200 }, function (err, url) {
-      if (err) return console.error(err);
-      
-      // Mostra o QR Code na tela
-      const pixDiv = document.getElementById('pix');
-      pixDiv.innerHTML = `
-        <p><b>Valor:</b> R$ ${valor.toFixed(2)}</p>
-        <img src="${url}" alt="QR Code PIX">
-        <p><small>Código copia e cola:</small></p>
-        <textarea readonly rows="3" style="width:100%">${payload}</textarea>
-      `;
-    });
-  }
-</script>
-
- <!-- Modal de login do administrador -->
-  <div id="adminLogin" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.3); z-index:999;">
-    <h3>Login Administrador</h3>
-    <label>Senha:</label><br>
-    <input type="password" id="adminPass" style="padding:6px; margin-top:6px; width:100%;"><br>
-    <button id="adminSubmit" style="margin-top:10px;">Entrar</button>
-    <button id="adminCancel" style="margin-top:10px; margin-left:5px; background:#ccc; color:#000;">Cancelar</button>
-  </div>
-
-  <script>
-  const ADMIN_PASSWORD = "hortifruti@2026"; // Coloque aqui a sua senha de administrador
-
-  const adminLink = document.getElementById('adminLink');
-  const adminLogin = document.getElementById('adminLogin');
-  const adminPassInput = document.getElementById('adminPass');
-  const adminSubmit = document.getElementById('adminSubmit');
-  const adminCancel = document.getElementById('adminCancel');
-
-  // Abrir modal ao clicar no botão Painel Admin
-  adminLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    adminPassInput.value = ''; // limpa o campo
-    adminLogin.style.display = 'block';
-    adminPassInput.focus();
-  });
-
-  // Cancelar login
-  adminCancel.addEventListener('click', () => {
-    adminLogin.style.display = 'none';
-  });
-
-  // Submeter senha
-  adminSubmit.addEventListener('click', () => {
-    const entered = adminPassInput.value;
-    if(entered === ADMIN_PASSWORD){
-      alert("Acesso concedido! Você pode adicionar, editar e remover produtos.");
-      adminLogin.style.display = 'none';
-      // Aqui você chama a função para abrir o painel admin real
-      openAdminPanel();
-    } else {
-      alert("Senha incorreta!");
-      adminPassInput.value = '';
-      adminPassInput.focus();
-    }
-  });
-  // ======= Botões Exportar e Importar no Painel =======
-const adminPanelExtra = document.createElement('div');
-adminPanelExtra.style.marginTop = '10px';
-adminPanelExtra.innerHTML = `
-  <button onclick="exportarProdutos()">📤 Exportar Produtos</button>
-  <input type="file" id="importFile" accept=".json" onchange="importarProdutos(this)" style="display:none;">
-  <button onclick="document.getElementById('importFile').click()">📥 Importar Produtos</button>
-`;
-document.body.appendChild(adminPanelExtra);
-
-
-  // Função de exemplo para abrir o painel admin
-  function openAdminPanel(){
-  let action = prompt("Digite: \n1 - Adicionar produto\n2 - Editar produto\n3 - Remover produto");
-  if(!action) return;
-
-  if(action === "1"){ // Adicionar
-    const id = 'p' + (products.length + 1).toString().padStart(2,'0');
-    const name = prompt('Nome do produto:');
-    if(!name) return;
-    const desc = prompt('Descrição:') || '';
-    const priceUnit = parseFloat(prompt('Preço por unidade (ou deixe vazio)')?.replace(',','.')) || null;
-    const priceKg = parseFloat(prompt('Preço por Kg (ou deixe vazio)')?.replace(',','.')) || null;
-    const img = prompt('URL da imagem:') || '';
-    products.push({id, name, desc, priceUnit, priceKg, img});
-    localStorage.setItem('products', JSON.stringify(products));
-    renderProducts();
-    alert("Produto adicionado!");
-  } 
-  else if(action === "2"){ // Editar
-    // Lista todos os produtos
-    let list = "Produtos:\n";
-    products.forEach((p, i) => {
-      list += `${i + 1} - ${p.name} (Unid: ${p.priceUnit ?? '-'} / Kg: ${p.priceKg ?? '-'})\n`;
-    });
-    const idx = parseInt(prompt(list + "\nDigite o número do produto para editar:")) - 1;
-    if(idx < 0 || idx >= products.length) { alert("Produto inválido!"); return; }
-    const p = products[idx];
-    p.name = prompt('Nome do produto:', p.name) || p.name;
-    p.desc = prompt('Descrição:', p.desc) || p.desc;
-    const unit = prompt('Preço por unidade (deixe vazio para não alterar):', p.priceUnit ?? '');
-    p.priceUnit = unit !== '' ? parseFloat(unit.replace(',','.')) : p.priceUnit;
-    const kg = prompt('Preço por Kg (deixe vazio para não alterar):', p.priceKg ?? '');
-    p.priceKg = kg !== '' ? parseFloat(kg.replace(',','.')) : p.priceKg;
-    p.img = prompt('URL da imagem:', p.img) || p.img;
-    localStorage.setItem('products', JSON.stringify(products));
-    renderProducts();
-    alert("Produto editado!");
-  }
-  else if(action === "3"){ // Remover
-    // Lista todos os produtos
-    let list = "Produtos:\n";
-    products.forEach((p, i) => {
-      list += `${i + 1} - ${p.name}\n`;
-    });
-    const idx = parseInt(prompt(list + "\nDigite o número do produto para remover:")) - 1;
-    if(idx < 0 || idx >= products.length) { alert("Produto inválido!"); return; }
-    if(confirm(`Deseja realmente remover ${products[idx].name}?`)){
-      products.splice(idx,1);
-      localStorage.setItem('products', JSON.stringify(products));
-      renderProducts();
-      alert("Produto removido!");
-    }
-  }
-  else{
-    alert("Opção inválida!");
-  }
-}
-
-// ======= Exportar produtos =======
-function exportarProdutos() {
-  const products = JSON.parse(localStorage.getItem('products')) || [];
-  const blob = new Blob([JSON.stringify(products, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'produtos.json';
-  a.click();
-  URL.revokeObjectURL(url);
-
-  alert("✅ Produtos exportados com sucesso! O arquivo produtos.json foi baixado.");
-}
-
-// ======= Importar produtos =======
-function importarProdutos(input) {
-  const file = input.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    try {
-      const importedProducts = JSON.parse(e.target.result);
-      localStorage.setItem('products', JSON.stringify(importedProducts));
-      alert("✅ Produtos importados com sucesso!");
-      location.reload();
-    } catch (error) {
-      alert("❌ Erro ao importar arquivo. Verifique se é um .json válido.");
-    }
-  };
-  reader.readAsText(file);
-}
-
-
-</script>
-
-
+  <!-- qrcode lib (para gerar imagem do QR) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </body>
 </html>
