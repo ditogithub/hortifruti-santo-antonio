@@ -219,26 +219,30 @@
     function calcTotal(){ return cart.reduce((s,it)=> s + (Number(it.unitPrice||0) * Number(it.qty||0)), 0); }
 
     function renderCart(){
-      const el = document.getElementById('cartItems');
-      el.innerHTML = '';
-      if(cart.length === 0){ el.innerHTML = '<div class="small">Nenhum item ainda.</div>'; }
-      else {
-        cart.forEach((it,i)=>{
-          const name = it.name || it.productId;
-          el.innerHTML += `
-            <div class="cart-item">
-              <div style="width:56px;height:40px;background:#f4f4f4;border-radius:6px;display:flex;align-items:center;justify-content:center">${(name[0]||'')}</div>
-              <div class="info">
-                <strong>${name}</strong><br>
-                <span class="small">${it.qty} ${it.mode==='kg'?'kg':'un.'} × ${formatBRL(it.unitPrice)}</span>
-              </div>
-              <button style="background:#e74c3c" onclick="removeFromCart(${i})">Remover</button>
+    const el = document.getElementById('cartItems');
+    el.innerHTML = '';
+    if(cart.length === 0){ el.innerHTML = '<div class="small">Nenhum item ainda.</div>'; }
+    else {
+      cart.forEach((it,i)=>{
+        const name = it.name || it.productId;
+        el.innerHTML += `
+          <div class="cart-item">
+            <div style="width:56px;height:40px;background:#f4f4f4;border-radius:6px;display:flex;align-items:center;justify-content:center">${(name[0]||'')}</div>
+            <div class="info">
+              <strong>${name}</strong><br>
+              <span class="small">${it.qty} ${it.mode==='kg'?'kg':'un.'} × ${formatBRL(it.unitPrice)}</span>
             </div>
-          `;
-        });
-      }
-      document.getElementById('cartTotal').textContent = 'Total: ' + formatBRL(calcTotal());
+            <button style="background:#e74c3c" onclick="removeFromCart(${i})">Remover</button>
+          </div>
+        `;
+      });
     }
+    document.getElementById('cartTotal').textContent = 'Total: ' + formatBRL(calcTotal());
+
+    // 🔥 Linha nova: atualiza PIX automaticamente
+    atualizarPix();
+  }
+
 
     // gerar mensagem e PIX
     function generateMessage(){
@@ -265,34 +269,81 @@
     }
 
     // gerar PIX visual (QR code + copia e cola)
-    function gerarPix(nome, chavePix, cidade, valor, descricao){
-      const payload = buildPixPayload(nome, cidade, chavePix, valor, descricao);
-      // usa qrcode lib abaixo (CDN)
-      QRCode.toDataURL(payload, { width: 200 }, function(err, url){
-        if(err){ console.error(err); alert('Erro ao gerar QR Code'); return; }
-        document.getElementById('pix').innerHTML = `
-          <p><b>Valor:</b> ${formatBRL(valor)}</p>
-          <img src="${url}" alt="QR Code PIX">
-          <p><small>Código copia e cola:</small></p>
-          <textarea readonly rows="3" style="width:100%">${payload}</textarea>
-        `;
-      });
+    function atualizarPix() {
+    const total = calcTotal();
+    if(total === 0){
+      document.getElementById('pix').innerHTML = '';
+      return;
+  }
+
+  const nome = "HORTIFRUTI SANTO ANTONIO";
+  const chavePix = "suachavepix@banco.com";
+  const cidade = "Recife";
+  const descricao = "Pagamento pedido Hortifruti";
+
+  const payload = buildPixPayload(nome, cidade, chavePix, total, descricao);
+
+  QRCode.toDataURL(payload, { width: 200 }, function(err, url){
+    if(err){ console.error(err); return; }
+    document.getElementById('pix').innerHTML = `
+      <p><b>Valor:</b> ${formatBRL(total)}</p>
+      <img src="${url}" alt="QR Code PIX">
+      <p><small>Código copia e cola:</small></p>
+      <textarea readonly rows="3" style="width:100%">${payload}</textarea>
+    `;
+  });
+}
+
+  function gerarMensagemWhatsApp() {
+  const total = calcTotal();
+  let mensagem = "🛒 *Orçamento Hortifruti Santo Antônio*\n\n";
+  mensagem += `👤 *Nome:* ${clientName.value || 'Não informado'}\n`;
+  mensagem += `📞 *Telefone:* ${clientPhone.value || 'Não informado'}\n`;
+  mensagem += `🏠 *Endereço:* ${clientAddress.value || 'Não informado'}\n`;
+  if(clientChange.value) mensagem += `💵 *Troco para:* ${clientChange.value}\n`;
+
+  mensagem += "\n───────────────\n🍎 Produtos selecionados:\n";
+  cart.forEach((item, index) => {
+    mensagem += `${index+1}️⃣ *${item.name}*\n`;
+    mensagem += `   - Preço: ${formatBRL(item.unitPrice)}\n`;
+    mensagem += `   - Quantidade: ${item.qty}\n`;
+  });
+
+  mensagem += "───────────────\n";
+  mensagem += `💰 *Total:* ${formatBRL(total)}\n\n`;
+
+  // Código PIX de copia e cola
+  const payload = buildPixPayload("HORTIFRUTI SANTO ANTONIO", "Recife", "suachavepix@banco.com", total, "Pagamento pedido Hortifruti");
+  mensagem += `📌 Faça seu pagamento via PIX (copia e cola):\n${payload}\n\n`;
+
+  mensagem += "Muito obrigado pela preferência! 😄";
+
+  return encodeURIComponent(mensagem);
+}
+// listeners botoes
+    document.getElementById('sendWhats').addEventListener('click', () => {
+    if(cart.length === 0){ 
+        alert('Carrinho vazio.'); 
+        return; 
     }
 
-    function sendWhatsApp(){
-      if(cart.length === 0){ alert('Carrinho vazio.'); return; }
-      const msg = generateMessage();
-      const total = calcTotal();
-      // gerar PIX visual
-      gerarPix("HORTIFRUTI SANTO ANTONIO", "suachavepix@banco.com", "Recife", total, "Pagamento pedido Hortifruti");
-      // abrir WhatsApp
-      const url = `https://wa.me/${sellerPhone}?text=${encodeURIComponent(msg)}`;
-      window.open(url, '_blank');
-    }
+    // Atualiza PIX visual (não substitua essa função)
+    atualizarPix();
 
-    // listeners botoes
-    document.getElementById('clearBtn').addEventListener('click', clearCart);
-    document.getElementById('sendWhats').addEventListener('click', sendWhatsApp);
+    // Abre WhatsApp com a mensagem
+    const msg = gerarMensagemWhatsApp();  // chama a função que já existe
+    const url = `https://wa.me/?text=${msg}`;
+    window.open(url, '_blank');
+});
+
+
+  
+
+  const total = calcTotal(); // calcula total do carrinho
+
+  // Gera PIX visual
+  
+
 
     // ===== ADMIN PANEL =====
     const adminLink = document.getElementById('adminLink');
