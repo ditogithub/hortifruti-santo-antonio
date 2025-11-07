@@ -111,13 +111,19 @@
     </aside>
   </div>
 
-  <footer>Arquivo local — salve como <code>catalogo.html</code> e abra no navegador (ou publique no GitHub Pages).</footer>
+  <footer>Hortifruti Santo Antônio <code>catalogo.html</code> e abra no navegador (ou publique no GitHub Pages).</footer>
 
+  <!-- qrcode lib (para gerar imagem do QR) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <!-- Firebase + Firestore via CDN (module) -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, updateDoc, getDocs } 
-      from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getFirestore, collection, onSnapshot, setDoc , addDoc, deleteDoc, doc, updateDoc, getDocs, getDoc } 
+    from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+   // === Verificar se compras estão liberadas ===
+  
+ 
 
     // ====== Coloque SUA config do Firebase aqui (já você tem) ======
     const firebaseConfig = {
@@ -131,6 +137,13 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    async function comprasLiberadas() {
+    const ref = doc(db, 'config', 'geral'); // caminho do documento
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return false; // se o documento não existir, bloqueia
+    return snap.data().comprasLiberadas === true;
+  }
 
     // número do vendedor para WhatsApp
     const sellerPhone = '5581986176915';
@@ -260,13 +273,12 @@
     }
 
     // Função simples para montar um payload PIX (SIMPLIFICADO)
-    function buildPixPayload(nometitular, cidade, chavePix, valor, descricao){
-      // Simples e não-certificado — para uso local/demonstração. Para produção use biblioteca oficial.
-      const amount = Number(valor||0).toFixed(2);
-      let payload = `00020126360014BR.GOV.BCB.PIX01${String(chavePix).length.toString().padStart(2,'0')}${chavePix}520400005303986540${amount}5802BR5913${nometitular.substring(0,13)}6009${cidade.substring(0,9)}62070503***6304`;
-      payload = payload.replace(/\s+/g,'');
-      return payload;
-    }
+    function buildPixPayload(nomeTitular, chavePix, cidade, valor, descricao) {
+    const amount = Number(valor||0).toFixed(2);
+    let payload = `00020126360014BR.GOV.BCB.PIX01${String(chavePix).length.toString().padStart(2,'0')}${chavePix}520400005303986540${amount}5802BR5913${nomeTitular.substring(0,13)}6009${cidade.substring(0,9)}62070503***6304`;
+    return payload.replace(/\s+/g,'');
+  }
+
 
     // gerar PIX visual (QR code + copia e cola)
     function atualizarPix() {
@@ -281,7 +293,8 @@
   const cidade = "Recife";
   const descricao = "Pagamento pedido Hortifruti";
 
-  const payload = buildPixPayload(nome, cidade, chavePix, total, descricao);
+  const payload = buildPixPayload(nome, chavePix, cidade, total, descricao);
+
 
   QRCode.toDataURL(payload, { width: 200 }, function(err, url){
     if(err){ console.error(err); return; }
@@ -313,7 +326,8 @@
   mensagem += `💰 *Total:* ${formatBRL(total)}\n\n`;
 
   // Código PIX de copia e cola
-  const payload = buildPixPayload("HORTIFRUTI SANTO ANTONIO", "Recife", "suachavepix@banco.com", total, "Pagamento pedido Hortifruti");
+  const payload = buildPixPayload("HORTIFRUTI SANTO ANTONIO", "suachavepix@banco.com", "Recife", total, "Pagamento pedido Hortifruti");
+
   mensagem += `📌 Faça seu pagamento via PIX (copia e cola):\n${payload}\n\n`;
 
   mensagem += "Muito obrigado pela preferência! 😄";
@@ -321,20 +335,29 @@
   return encodeURIComponent(mensagem);
 }
 // listeners botoes
-    document.getElementById('sendWhats').addEventListener('click', () => {
-    if(cart.length === 0){ 
-        alert('Carrinho vazio.'); 
-        return; 
-    }
+    document.getElementById('sendWhats').addEventListener('click', async () => {
+  const docRef = doc(db, 'config', 'geral');
+  const snap = await getDoc(docRef);
+  const ativo = snap.exists() && snap.data().comprasLiberadas === true;
 
-    // Atualiza PIX visual (não substitua essa função)
-    atualizarPix();
+  if(!ativo){
+    alert('🚫 As compras ainda não estão liberadas.\nAguarde autorização da loja.');
+    return;
+  }
 
-    // Abre WhatsApp com a mensagem
-    const msg = gerarMensagemWhatsApp();  // chama a função que já existe
-    const url = `https://wa.me/?text=${msg}`;
-    window.open(url, '_blank');
+  const msg = gerarMensagemWhatsApp();
+  const url = `https://wa.me/${sellerPhone}?text=${msg}`;
+  window.open(url, '_blank');
 });
+
+
+
+  // Verifica no Firestore se as compras estão liberadas
+  
+
+
+
+  
 
 
   
@@ -398,89 +421,125 @@
       panel.style.zIndex='9999';
 
       panel.innerHTML = `
-        <h3>Painel Admin</h3>
-        <div class="admin-controls">
-          <button id="btnAddAdmin">Adicionar Produto</button>
-          <button id="btnCloseAdmin" style="background:#ccc;color:#000">Fechar</button>
-        </div>
-        <div id="adminProductsList" style="margin-top:12px; max-height:60vh; overflow:auto"></div>
-      `;
+      <h3>Painel Admin</h3>
+      <div class="admin-controls">
+        <button id="btnAddAdmin">Adicionar Produto</button>
+        <button id="btnToggleCompras" style="background:#27ae60">Liberar/Bloquear Compras</button>
+        <button id="btnCloseAdmin" style="background:#ccc;color:#000">Fechar</button>
+      </div>
+      <div id="statusCompras" class="small" style="margin-top:6px;color:#555;"></div>
+      <div id="adminProductsList" style="margin-top:12px; max-height:60vh; overflow:auto"></div>
+    `;
+
       document.body.appendChild(panel);
 
       panel.querySelector('#btnCloseAdmin').addEventListener('click', ()=>{ panel.remove(); });
 
-      async function loadAdminProducts(){
-        const listEl = panel.querySelector('#adminProductsList');
-        listEl.innerHTML = '<div class="small">Carregando...</div>';
-        const snap = await getDocs(collection(db,'produtos'));
-        listEl.innerHTML = '';
-        snap.forEach(d=>{
-          const p = mapDocToProduct(d);
-          const node = document.createElement('div');
-          node.className = 'produto-admin';
-          node.innerHTML = `
-            <strong>${p.name}</strong> <span style="color:var(--muted)">(${p.id})</span><br>
-            <div class="small">${p.desc || ''}</div>
-            <div style="margin-top:8px">
-              <button data-id="${d.id}" class="btn-edit">Editar</button>
-              <button data-id="${d.id}" class="btn-del" style="background:#e74c3c">Remover</button>
-            </div>
-          `;
-          listEl.appendChild(node);
-        });
+    async function loadAdminProducts(){
+  const listEl = panel.querySelector('#adminProductsList');
+  listEl.innerHTML = '<div class="small">Carregando...</div>';
+  const snap = await getDocs(collection(db,'produtos'));
+  listEl.innerHTML = '';
 
-        // attach edit/delete
-        listEl.querySelectorAll('.btn-edit').forEach(b=>{
-          b.addEventListener('click', async ()=> {
-            const id = b.dataset.id;
-            // pega doc atual
-            const novoNome = prompt('Nome do produto:') || null;
-            if(novoNome === null) return;
-            const novaDesc = prompt('Descrição:') || '';
-            const novoPrecoUnit = prompt('Preço por unidade (deixe vazio para null):') || '';
-            const novoPrecoKg = prompt('Preço por kg (deixe vazio para null):') || '';
-            const novaImg = prompt('URL da imagem:') || '';
-            const ref = doc(db,'produtos', id);
-            const payload = {};
-            if(novoNome !== null) payload.name = novoNome;
-            payload.desc = novaDesc;
-            payload.img = novaImg;
-            payload.priceUnit = novoPrecoUnit === '' ? null : Number(novoPrecoUnit.replace(',','.'));
-            payload.priceKg = novoPrecoKg === '' ? null : Number(novoPrecoKg.replace(',','.'));
-            await updateDoc(ref, payload);
-            alert('Produto atualizado!');
-            loadAdminProducts();
-          });
-        });
+  snap.forEach(d=>{
+    const p = mapDocToProduct(d);
+    const node = document.createElement('div');
+    node.className = 'produto-admin';
+    node.innerHTML = `
+      <strong>${p.name}</strong> <span style="color:var(--muted)">(${p.id})</span><br>
+      <div class="small">${p.desc || ''}</div>
+      <div style="margin-top:8px">
+        <button data-id="${d.id}" class="btn-edit">Editar</button>
+        <button data-id="${d.id}" class="btn-del" style="background:#e74c3c">Remover</button>
+      </div>
+    `;
+    listEl.appendChild(node);
+  });
 
-        listEl.querySelectorAll('.btn-del').forEach(b=>{
-          b.addEventListener('click', async ()=> {
-            const id = b.dataset.id;
-            if(confirm('Deseja remover este produto?')){
-              await deleteDoc(doc(db,'produtos',id));
-              alert('Removido com sucesso!');
-              loadAdminProducts();
-            }
-          });
-        });
+  // === STATUS DE COMPRAS (liberar/bloquear) ===
+  async function atualizarStatusCompras(){
+    const docRef = doc(db, 'config', 'geral');
+    const snap = await getDoc(docRef);
+    const ativo = snap.exists() && snap.data().comprasLiberadas === true;
+    panel.querySelector('#statusCompras').textContent = ativo ? 
+      '🟢 Compras estão LIBERADAS' : 
+      '🔴 Compras estão BLOQUEADAS';
+    panel.querySelector('#btnToggleCompras').textContent = ativo ? 'Bloquear Compras' : 'Liberar Compras';
+  }
+
+  panel.querySelector('#btnToggleCompras').addEventListener('click', async ()=>{
+    const docRef = doc(db, 'config', 'geral');
+    const snap = await getDoc(docRef);
+    const atual = snap.exists() && snap.data().comprasLiberadas === true;
+    await setDoc(docRef, { comprasLiberadas: !atual });
+    atualizarStatusCompras();
+  });
+
+  // inicializa status
+  atualizarStatusCompras();
+
+  // attach edit/delete (agora que listEl está populado)
+  listEl.querySelectorAll('.btn-edit').forEach(b => {
+    b.addEventListener('click', async () => {
+      const id = b.dataset.id;
+
+      const novoNome = prompt('Nome do produto:') || null;
+      if (novoNome === null) return;
+      const novaDesc = prompt('Descrição:') || '';
+      const novoPrecoUnit = prompt('Preço por unidade (deixe vazio para null):') || '';
+      const novoPrecoKg = prompt('Preço por kg (deixe vazio para null):') || '';
+      const novaImg = prompt('URL da imagem:') || '';
+
+      const ref = doc(db, 'produtos', id);
+      const payload = {};
+
+      if (novoNome !== '' && novoNome !== null) payload.name = novoNome;
+      if (novaDesc !== '' && novaDesc !== null) payload.desc = novaDesc;
+      if (novaImg !== '' && novaImg !== null) payload.img = novaImg;
+      if (novoPrecoUnit !== '') payload.priceUnit = Number(novoPrecoUnit.replace(',', '.'));
+      if (novoPrecoKg !== '') payload.priceKg = Number(novoPrecoKg.replace(',', '.'));
+
+      if (Object.keys(payload).length === 0) {
+        alert('Nenhuma alteração feita.');
+        return;
       }
 
-      panel.querySelector('#btnAddAdmin').addEventListener('click', async ()=>{
-        const nome = prompt('Nome do produto:'); if(!nome) return;
-        const descricao = prompt('Descrição:') || '';
-        const precoUnit = prompt('Preço por unidade (ou vazio):') || '';
-        const precoKg = prompt('Preço por kg (ou vazio):') || '';
-        const img = prompt('URL da imagem (pública):') || '';
-        await addDoc(collection(db,'produtos'), {
-          name: nome,
-          desc: descricao,
-          img: img,
-          priceUnit: precoUnit === '' ? null : Number(precoUnit.replace(',','.')),
-          priceKg: precoKg === '' ? null : Number(precoKg.replace(',','.'))
-        });
-        alert('Produto adicionado!');
+      await updateDoc(ref, payload);
+      alert('Produto atualizado!');
+      loadAdminProducts(); // recarrega a lista
+    });
+  });
+
+  listEl.querySelectorAll('.btn-del').forEach(b => {
+    b.addEventListener('click', async () => {
+      const id = b.dataset.id;
+      if (confirm('Deseja remover este produto?')) {
+        await deleteDoc(doc(db, 'produtos', id));
+        alert('Removido com sucesso!');
         loadAdminProducts();
+      }
+    });
+  });
+}
+
+
+      panel.querySelector('#btnAddAdmin').addEventListener('click', async ()=> {
+      const nome = prompt('Nome do produto:'); if(!nome) return;
+      const descricao = prompt('Descrição:') || '';
+      const precoUnit = prompt('Preço por unidade (ou vazio):') || '';
+      const precoKg = prompt('Preço por kg (ou vazio):') || '';
+      const img = prompt('URL da imagem (pública):') || '';
+      await addDoc(collection(db,'produtos'), {
+        name: nome,
+        desc: descricao,
+        img: img,
+        priceUnit: precoUnit === '' ? null : Number(precoUnit.replace(',','.')),
+        priceKg: precoKg === '' ? null : Number(precoKg.replace(',','.'))
       });
+      alert('Produto adicionado!');
+      loadAdminProducts();
+    });
+
 
       // inicial
       loadAdminProducts();
@@ -491,7 +550,6 @@
 
   </script>
 
-  <!-- qrcode lib (para gerar imagem do QR) -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  
 </body>
 </html>
