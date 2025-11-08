@@ -56,18 +56,37 @@
 </head>
 <body>
 
-  <header>
-    <img src="imagens/logo.jpeg" alt="Logo">
-    <div style="flex:1">
-      <h1>Hortifruti Santo Antônio — Lugar de comprar barato</h1>
-      <div class="small">Selecione os produtos, gere o orçamento e envie pelo WhatsApp</div>
-    </div>
+  <header style="
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #27ae60, #2ecc71);
+  color: white;
+  border-radius: 12px;
+  padding: 10px 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  margin-bottom: 18px;
+">
+  <!-- Logo -->
+  <img src="imagens/logo.jpeg" alt="Logo" 
+       style="width: 56px; height: 56px; border-radius: 8px; object-fit: cover;">
 
-    <!-- Botão Painel Admin -->
-    <div>
-      <a href="#" id="adminLink" style="color:#d35400; font-weight:bold;">Painel Admin</a>
-    </div>
-  </header>
+  <!-- Texto central -->
+  <div style="text-align: center; flex: 1;">
+    <h1 style="margin: 0; font-size: 20px;">Hortifruti Santo Antônio — Lugar de comprar barato</h1>
+    <div style="margin-top: 4px; font-size: 14px;">Selecione os produtos, gere o orçamento e envie pelo WhatsApp 📱</div>
+  </div>
+
+  <!-- Botão Painel Admin -->
+  <div>
+    <a href="#" id="adminLink" 
+       style="color: #fff; font-weight: bold; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 6px; text-decoration: none;">
+       Painel Admin
+    </a>
+  </div>
+</header>
+
+
 
   <div class="layout">
     <!-- PRODUTOS -->
@@ -111,7 +130,10 @@
     </aside>
   </div>
 
-  <footer>Hortifruti Santo Antônio <code>catalogo.html</code> e abra no navegador (ou publique no GitHub Pages).</footer>
+    <footer style="text-align:center; padding:10px; background-color:#f1f1f1; font-size:14px; color:#333;">
+    © <span id="year"></span> Hortifruti Santo Antônio — Todos os direitos reservados.
+    </footer>
+
 
   <!-- qrcode lib (para gerar imagem do QR) -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -204,7 +226,7 @@
           const qty = parseFloat(document.getElementById(`qty_${p.id}`).value);
           if(!mode || isNaN(qty) || qty <= 0){ alert('Escolha modo e quantidade válida.'); return; }
           const price = (mode === 'kg') ? p.priceKg : p.priceUnit;
-          addToCart({ productId: p.id, mode, qty, unitPrice: price, name: p.name });
+          addToCart({ productId: p.id, mode, qty, unitPrice: price, name: p.name, img: p.img });
         });
       });
     }
@@ -222,11 +244,11 @@
 
     // CART
     function addToCart(item){
-      const exist = cart.find(c=>c.productId===item.productId && c.mode===item.mode);
-      if(exist) exist.qty = Number(exist.qty) + Number(item.qty);
-      else cart.push(item);
-      renderCart();
-    }
+    const exist = cart.find(c=>c.productId===item.productId && c.mode===item.mode);
+    if(exist) exist.qty = Number(exist.qty) + Number(item.qty);
+    else cart.push(item);
+    renderCart();
+  }
     function removeFromCart(i){ cart.splice(i,1); renderCart(); }
     function clearCart(){ if(confirm('Limpar carrinho?')){ cart=[]; renderCart(); } }
     function calcTotal(){ return cart.reduce((s,it)=> s + (Number(it.unitPrice||0) * Number(it.qty||0)), 0); }
@@ -240,8 +262,8 @@
         const name = it.name || it.productId;
         el.innerHTML += `
           <div class="cart-item">
-            <div style="width:56px;height:40px;background:#f4f4f4;border-radius:6px;display:flex;align-items:center;justify-content:center">${(name[0]||'')}</div>
-            <div class="info">
+            <img src="${it.img || 'https://via.placeholder.com/60x40?text=Sem+imagem'}" alt="${name}">
+              <div class="info">
               <strong>${name}</strong><br>
               <span class="small">${it.qty} ${it.mode==='kg'?'kg':'un.'} × ${formatBRL(it.unitPrice)}</span>
             </div>
@@ -281,31 +303,52 @@
 
 
     // gerar PIX visual (QR code + copia e cola)
-    function atualizarPix() {
+    async function atualizarPix() {
     const total = calcTotal();
-    if(total === 0){
-      document.getElementById('pix').innerHTML = '';
+    const pixDiv = document.getElementById('pix');
+
+    // Se carrinho estiver vazio, limpa
+    if (total === 0) {
+      pixDiv.innerHTML = '';
       return;
+    }
+
+    // Verifica se compras estão liberadas
+    const ref = doc(db, 'config', 'geral');
+    const snap = await getDoc(ref);
+    const ativo = snap.exists() && snap.data().comprasLiberadas === true;
+
+    if (!ativo) {
+      // Se estiver bloqueado, mostra aviso e não gera PIX
+      pixDiv.innerHTML = `
+        <p><b>Valor:</b> ${formatBRL(total)}</p>
+        <p style="color:red;font-weight:bold;">
+          ⚠️ As compras estão bloqueadas.<br>
+          O PIX será exibido quando as compras forem liberadas.
+        </p>
+      `;
+      return;
+    }
+
+    // Se estiver liberado, gera normalmente o PIX
+    const nome = "HORTIFRUTI SANTO ANTONIO";
+    const chavePix = "suachavepix@banco.com";
+    const cidade = "Recife";
+    const descricao = "Pagamento pedido Hortifruti";
+
+    const payload = buildPixPayload(nome, chavePix, cidade, total, descricao);
+
+    QRCode.toDataURL(payload, { width: 200 }, function(err, url) {
+      if (err) { console.error(err); return; }
+      pixDiv.innerHTML = `
+        <p><b>Valor:</b> ${formatBRL(total)}</p>
+        <img src="${url}" alt="QR Code PIX">
+        <p><small>Código copia e cola:</small></p>
+        <textarea readonly rows="3" style="width:100%">${payload}</textarea>
+      `;
+    });
   }
 
-  const nome = "HORTIFRUTI SANTO ANTONIO";
-  const chavePix = "suachavepix@banco.com";
-  const cidade = "Recife";
-  const descricao = "Pagamento pedido Hortifruti";
-
-  const payload = buildPixPayload(nome, chavePix, cidade, total, descricao);
-
-
-  QRCode.toDataURL(payload, { width: 200 }, function(err, url){
-    if(err){ console.error(err); return; }
-    document.getElementById('pix').innerHTML = `
-      <p><b>Valor:</b> ${formatBRL(total)}</p>
-      <img src="${url}" alt="QR Code PIX">
-      <p><small>Código copia e cola:</small></p>
-      <textarea readonly rows="3" style="width:100%">${payload}</textarea>
-    `;
-  });
-}
 
   function gerarMensagemWhatsApp() {
   const total = calcTotal();
@@ -334,8 +377,33 @@
 
   return encodeURIComponent(mensagem);
 }
+
+// Atualiza os preços do carrinho com base nos dados atuais do Firestore
+async function atualizarPrecosCarrinho() {
+  const col = collection(db, 'produtos');
+  const snap = await getDocs(col);
+  const mapaAtual = {};
+  snap.forEach(docSnap => {
+    const p = mapDocToProduct(docSnap);
+    mapaAtual[p.id] = p;
+  });
+
+  // Atualiza cada item do carrinho
+  cart = cart.map(item => {
+    const atualizado = mapaAtual[item.productId];
+    if (atualizado) {
+      item.unitPrice = item.mode === 'kg' ? atualizado.priceKg : atualizado.priceUnit;
+      item.name = atualizado.name;
+      item.img = atualizado.img;
+    }
+    return item;
+  });
+
+  renderCart(); // atualiza a tela com os novos valores
+}
+
 // listeners botoes
-    document.getElementById('sendWhats').addEventListener('click', async () => {
+  document.getElementById('sendWhats').addEventListener('click', async () => {
   const docRef = doc(db, 'config', 'geral');
   const snap = await getDoc(docRef);
   const ativo = snap.exists() && snap.data().comprasLiberadas === true;
@@ -344,6 +412,10 @@
     alert('🚫 As compras ainda não estão liberadas.\nAguarde autorização da loja.');
     return;
   }
+
+  // 🔥 Atualiza os preços com os valores atuais do Firestore
+  await atualizarPrecosCarrinho();
+
 
   const msg = gerarMensagemWhatsApp();
   const url = `https://wa.me/${sellerPhone}?text=${msg}`;
@@ -372,7 +444,7 @@
     const adminLink = document.getElementById('adminLink');
 
     // senha simples (está no código) — troque se quiser
-    const ADMIN_PASSWORD = "hortifruti@2026";
+    const ADMIN_PASSWORD = "2427@";
 
     // modal simples (criamos dinamicamente)
     const adminLoginModal = document.createElement('div');
@@ -547,6 +619,9 @@
 
     // expose removeFromCart for onclick inline
     window.removeFromCart = removeFromCart;
+
+    //coloca o ano atual na footer 
+  document.getElementById('year').textContent = new Date().getFullYear();
 
   </script>
 
