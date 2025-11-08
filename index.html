@@ -79,7 +79,7 @@
       Hortifruti Santo Antônio: Lugar de comprar barato
     </h1>
     <div style="margin-top: 4px; font-size: 14px; text-align: center;">
-      Peça seu produtos pelo WhatsApp 📱
+      Peça produtos pelo WhatsApp 📱
     </div>
   </div>
 
@@ -103,6 +103,8 @@
     <div>
       <div class="card">
         <h2 style="margin:0 0 12px 0">Produtos</h2>
+        <input type="text" id="searchInput" placeholder="🔍 Pesquisar produto..." 
+        style="width:100%; padding:8px; border-radius:8px; border:1px solid #ccc; margin-bottom:10px;">
         <div class="products" id="productsList"></div>
       </div>
     </div>
@@ -208,6 +210,23 @@
     const productsListEl = document.getElementById('productsList');
     let produtosSnapshotUnsub = null;
 
+    // ========== BUSCA DE PRODUTOS ==========
+    let allProducts = []; // armazenará todos os produtos carregados
+
+    // Atualiza exibição conforme o termo pesquisado
+    function applySearch() {
+      const term = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allProducts.filter(p => 
+        p.name.toLowerCase().includes(term) || 
+        (p.desc && p.desc.toLowerCase().includes(term))
+      );
+      renderProducts(filtered);
+    }
+    document.addEventListener('input', (e)=>{
+      if(e.target.id === 'searchInput') applySearch();
+    });
+
+
     function renderProducts(products){
       productsListEl.innerHTML = '';
       products.forEach(p=>{
@@ -246,7 +265,9 @@
       const col = collection(db, 'produtos');
       produtosSnapshotUnsub = onSnapshot(col, (snapshot)=>{
         const items = snapshot.docs.map(mapDocToProduct);
-        renderProducts(items);
+        allProducts = items; // salva todos
+        renderProducts(allProducts); // mostra tudo
+
       }, (err)=>{ console.error('Erro onSnapshot produtos:', err); alert('Erro ao carregar produtos. Verifique console.'); });
     }
 
