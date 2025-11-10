@@ -170,32 +170,30 @@
   padding: 10px 16px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   margin-bottom: 18px;
-  text-align: center;
 ">
 
   <!-- Linha de botões -->
-  <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; align-items:center;">
+  <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; align-items:center;">
     <button onclick="irParaCarrinho()" 
             style="padding:8px 16px; border-radius:8px; border:none; background:#27ae60; color:white; cursor:pointer; font-weight:600;">
       🛒 Ir para o carrinho
     </button>
+    
 
     <a href="#" id="adminLink" 
        style="color: #fff; font-weight: bold; background: rgba(0,0,0,0.2); padding: 8px 16px; border-radius: 6px; text-decoration: none;">
        Painel Admin
     </a>
   </div>
+  
 
-  <!-- Logo e título centralizado -->
-  <div style="margin-bottom: 8px;">
+  <!-- Logo e título alinhados à esquerda -->
+  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
     <img src="imagens/logo.jpeg" alt="Logo" 
-         style="width: 56px; height: 56px; border-radius: 8px; object-fit: cover; margin-bottom: 8px;">
-
-    <h1 style="margin: 0; font-size: 18px;">
-      Hortifruti Santo Antônio: Lugar de comprar barato
-    </h1>
-    <div style="margin-top: 4px; font-size: 14px;">
-      Peça produtos pelo WhatsApp 📱
+         style="width: 56px; height: 56px; border-radius: 8px; object-fit: cover;">
+    <div>
+      <h1 style="margin: 0; font-size: 18px;">Hortifruti Santo Antônio</h1>
+      <div style="font-size: 14px;">Lugar de comprar barato 📱</div>
     </div>
   </div>
 
@@ -205,23 +203,20 @@
            style="width:100%; max-width:400px; padding:8px; border-radius:8px; border:1px solid #ccc;">
   </div>
 
+  <div id="mobileNav" style="display:none; text-align:center; margin-bottom:12px;">
+  <button id="btnIrCarrinho" style="background:#27ae60; color:#fff; border:0; padding:10px 16px; border-radius:8px; font-weight:600;">
+    🛒 Ir para o carrinho
+  </button>
+
 </header>
 
 
 <!-- BOTÕES MOBILE -->
-<div id="mobileNav" style="display:none; text-align:center; margin-bottom:12px;">
-  <button id="btnIrCarrinho" style="background:#27ae60; color:#fff; border:0; padding:10px 16px; border-radius:8px; font-weight:600;">
-    🛒 Ir para o carrinho
-  </button>
+
   <button id="btnContinuar" style="background:#2d9cdb; color:#fff; border:0; padding:10px 16px; border-radius:8px; font-weight:600; display:none;">
     🛍️ Continuar comprando
   </button>
 </div>
-
-
-
-
-
 
   <div class="layout">
     <!-- PRODUTOS -->
