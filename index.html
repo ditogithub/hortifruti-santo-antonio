@@ -29,15 +29,102 @@
     header h1 { font-size:20px; margin:0; }
     .layout { display:grid; grid-template-columns:1fr 380px; gap:18px; }
     .card { background:var(--card-bg); border-radius:10px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
-    .products { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
-    .product { display:flex; flex-direction:column; border-radius:8px; overflow:hidden; }
-    .product img { width:100%; height:140px; object-fit:cover; }
-    .product .body { padding:10px; flex:1; display:flex; flex-direction:column; gap:8px; }
-    .product h3 { margin:0; font-size:16px; }
-    .product p { margin:0; color:var(--muted); font-size:13px; }
-    .prices { display:flex; gap:8px; flex-wrap:wrap; font-size:14px; }
-    .prices span { background:#f1f1f1; padding:4px 8px; border-radius:6px; }
-    .controls { display:flex; gap:8px; align-items:center; margin-top:6px; }
+    .products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* preenche com o máximo que couber */
+  gap: 18px;
+  justify-items: center; /* centraliza os cards */
+  align-items: start;
+}
+
+.product {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 240px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
+}
+.product:hover {
+  transform: translateY(-3px);
+}
+
+.product img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
+}
+
+.product .body {
+  padding: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product h3 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.product p.small {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 4px 0;
+  flex: 1;
+}
+
+.prices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.prices span {
+  background: #f3f3f3;
+  padding: 3px 6px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap; /* ✅ faz os botões quebrarem linha se não couberem */
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.controls input[type="number"] {
+  width: 70px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.controls button {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.controls .go-cart {
+  background: #27ae60;
+  flex: 1;
+}
+
     input[type="number"] { width:80px; padding:6px; border-radius:6px; border:1px solid #ddd; }
     button { background:var(--accent); color:#fff; border:0; padding:8px 12px; border-radius:8px; cursor:pointer; }
     .cart { max-height:70vh; overflow:auto; }
@@ -93,6 +180,15 @@
   </div>
 </header>
 
+<!-- BOTÕES MOBILE -->
+<div id="mobileNav" style="display:none; text-align:center; margin-bottom:12px;">
+  <button id="btnIrCarrinho" style="background:#27ae60; color:#fff; border:0; padding:10px 16px; border-radius:8px; font-weight:600;">
+    🛒 Ir para o carrinho
+  </button>
+  <button id="btnContinuar" style="background:#2d9cdb; color:#fff; border:0; padding:10px 16px; border-radius:8px; font-weight:600; display:none;">
+    🛍️ Continuar comprando
+  </button>
+</div>
 
 
 
@@ -116,6 +212,13 @@
         <h2>Orçamento</h2>
         <div id="cartItems"><div class="small">Nenhum item ainda.</div></div>
         <div class="total" id="cartTotal">Total: R$ 0,00</div>
+
+        <!-- Botões de ação do carrinho -->
+        <div style="display: flex; gap: 8px; justify-content: space-between; margin-top: 10px;">
+          <button onclick="continuarComprando()" style="background:#2d9cdb; color:#fff; padding:8px 10px; border:none; border-radius:8px; flex:1;">
+            🛍️ Continuar comprando
+          </button>
+        </div>
 
         <div class="card" style="margin-top:10px">
           <h3>Seus dados</h3>
@@ -237,38 +340,57 @@
     });
 
 
-    function renderProducts(products){
-      productsListEl.innerHTML = '';
-      products.forEach(p=>{
-        const div = document.createElement('div');
-        div.className = 'product card';
-        div.innerHTML = `
-          <img src="${p.img || 'https://via.placeholder.com/400x300?text=Sem+imagem'}" alt="${p.name}">
-          <div class="body">
-            <h3>${p.name}</h3>
-            <p class="small">${p.desc || ''}</p>
-            <div class="prices">
-              ${p.priceUnit!=null?`<span>Unid: ${formatBRL(p.priceUnit)}</span>`: ''}
-              ${p.priceKg!=null?`<span>Kg: ${formatBRL(p.priceKg)}</span>`: ''}
-            </div>
-            <div class="controls">
-              <label><input type="radio" name="mode_${p.id}" value="unit" ${p.priceUnit==null?'disabled':'checked'}> Unid</label>
-              <label><input type="radio" name="mode_${p.id}" value="kg" ${p.priceKg==null?'disabled':''}> Kg</label>
-              <input type="number" min="0.01" step="0.01" value="1" id="qty_${p.id}">
-              <button data-id="${p.id}">Adicionar</button>
-            </div>
-          </div>`;
-        productsListEl.appendChild(div);
+    // =================== RENDERIZAR PRODUTOS ===================
+  async function renderProducts(products){
+  const container = document.getElementById('productsList'); // ✅ pega o container correto
+  container.innerHTML = '';
 
-        div.querySelector('button').addEventListener('click', ()=>{
-          const mode = div.querySelector(`input[name="mode_${p.id}"]:checked`)?.value;
-          const qty = parseFloat(document.getElementById(`qty_${p.id}`).value);
-          if(!mode || isNaN(qty) || qty <= 0){ alert('Escolha modo e quantidade válida.'); return; }
-          const price = (mode === 'kg') ? p.priceKg : p.priceUnit;
-          addToCart({ productId: p.id, mode, qty, unitPrice: price, name: p.name, img: p.img });
-        });
-      });
-    }
+  if(!products || products.length === 0){
+    container.innerHTML = '<p>Nenhum produto disponível no momento.</p>';
+    return;
+  }
+
+
+  
+
+  products.forEach(p=>{
+    if(p.ativo === false) return; // não mostra produtos inativos
+
+    const div = document.createElement('div');
+    div.className = 'product';
+
+    div.innerHTML = `
+      <img src="${p.img || 'https://via.placeholder.com/150'}" alt="${p.name}">
+      <div class="body">
+        <h3>${p.name}</h3>
+        <p class="small">${p.desc || ''}</p>
+        <div class="prices">
+          ${p.priceUnit!=null?`<span>Unid: ${formatBRL(p.priceUnit)}</span>`: ''}
+          ${p.priceKg!=null?`<span>Kg: ${formatBRL(p.priceKg)}</span>`: ''}
+        </div>
+        <div class="controls">
+          <label><input type="radio" name="mode_${p.id}" value="unit" ${p.priceUnit==null?'disabled':'checked'}> Unid</label>
+          <label><input type="radio" name="mode_${p.id}" value="kg" ${p.priceKg==null?'disabled':''}> Kg</label>
+          <input type="number" min="0.01" step="0.01" value="1" id="qty_${p.id}">
+          <button data-id="${p.id}">Adicionar</button>
+          <button class="go-cart" onclick="irParaCarrinho()">🛒 Ir para o carrinho</button>
+
+
+        </div>
+      </div>
+    `;
+
+    // ação de adicionar ao carrinho
+    div.querySelector('button[data-id]').addEventListener('click', ()=>{
+      addToCart(p);
+    });
+
+    container.appendChild(div);
+  });
+}
+
+
+
 
     // carregar produtos em tempo real
    function startRealtimeProducts(){
@@ -287,12 +409,32 @@
     startRealtimeProducts();
 
     // CART
-    function addToCart(item){
-    const exist = cart.find(c=>c.productId===item.productId && c.mode===item.mode);
-    if(exist) exist.qty = Number(exist.qty) + Number(item.qty);
-    else cart.push(item);
-    renderCart();
-  }
+    function addToCart(p) {
+      const mode = document.querySelector(`input[name="mode_${p.id}"]:checked`)?.value || 'unit';
+      const qty = Number(document.getElementById(`qty_${p.id}`).value) || 1;
+      const unitPrice = mode === 'kg' ? p.priceKg : p.priceUnit;
+
+      // estrutura padrão do item
+      const newItem = {
+        productId: p.id,
+        name: p.name,
+        img: p.img,
+        qty,
+        unitPrice,
+        mode
+      };
+
+      // se já existir o mesmo produto + modo, soma a quantidade
+      const exist = cart.find(c => c.productId === newItem.productId && c.mode === newItem.mode);
+      if (exist) {
+        exist.qty += qty;
+      } else {
+        cart.push(newItem);
+      }
+
+      renderCart();
+    }
+
     function removeFromCart(i){ cart.splice(i,1); renderCart(); }
     function clearCart(){ if(confirm('Limpar carrinho?')){ cart=[]; renderCart(); } }
     function calcTotal(){ return cart.reduce((s,it)=> s + (Number(it.unitPrice||0) * Number(it.qty||0)), 0); }
@@ -594,6 +736,8 @@ async function atualizarPrecosCarrinho() {
     btn.style.background = atual ? '#2ecc71' : '#999';
 
     alert(atual ? 'Produto desativado!' : 'Produto ativado!');
+    startRealtimeProducts(); // 🔥 Atualiza a listagem principal automaticamente
+
   });
 });
 
@@ -699,6 +843,103 @@ async function atualizarPrecosCarrinho() {
 
     // Atualizar ano do rodapé
     document.getElementById('year').textContent = new Date().getFullYear();
+
+
+    // ====== BOTÕES DE NAVEGAÇÃO MOBILE ======
+const layout = document.querySelector('.layout');
+const btnIrCarrinho = document.getElementById('btnIrCarrinho');
+const btnContinuar = document.getElementById('btnContinuar');
+const mobileNav = document.getElementById('mobileNav');
+
+// Detecta se é celular (tela pequena)
+function checkMobile() {
+  if (window.innerWidth <= 900) {
+    mobileNav.style.display = 'block';
+  } else {
+    mobileNav.style.display = 'none';
+    layout.style.display = 'grid'; // garante o layout padrão no PC
+  }
+}
+checkMobile();
+window.addEventListener('resize', checkMobile);
+
+// Alternar visualização
+btnIrCarrinho.addEventListener('click', () => {
+  layout.querySelector('div').style.display = 'none'; // esconde produtos
+  layout.querySelector('aside').style.display = 'block'; // mostra carrinho
+  btnIrCarrinho.style.display = 'none';
+  btnContinuar.style.display = 'inline-block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+btnContinuar.addEventListener('click', () => {
+  layout.querySelector('div').style.display = 'block'; // mostra produtos
+  layout.querySelector('aside').style.display = 'none'; // esconde carrinho
+  btnContinuar.style.display = 'none';
+  btnIrCarrinho.style.display = 'inline-block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Inicializa estado correto (produtos visíveis)
+if (window.innerWidth <= 900) {
+  layout.querySelector('aside').style.display = 'none';
+}
+
+
+
+// ⚙️ Executa uma vez para atualizar todos os produtos antigos
+async function corrigirProdutosAtivos() {
+  try {
+    const produtosSnap = await getDocs(collection(db, 'produtos'));
+    const batch = writeBatch(db);
+
+    produtosSnap.forEach((docSnap) => {
+      const data = docSnap.data();
+      // Se o produto não tiver o campo "ativo", adiciona como true
+      if (data.ativo === undefined) {
+        batch.update(docSnap.ref, { ativo: true });
+      }
+    });
+
+    await batch.commit();
+    alert('✅ Todos os produtos antigos receberam o campo ativo: true');
+  } catch (e) {
+    console.error('Erro ao atualizar produtos:', e);
+    alert('❌ Erro ao atualizar produtos, veja o console.');
+  }
+}
+
+// =================== FUNÇÃO IR PARA CARRINHO ===================
+// Mostra o carrinho e oculta o catálogo
+function irParaCarrinho() {
+  const produtos = document.querySelector('.products');
+  const carrinho = document.querySelector('.cart');
+
+  if (!produtos || !carrinho) return;
+
+  produtos.style.display = 'none';
+  carrinho.style.display = 'block';
+
+  // rola até o topo do carrinho
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Mostra o catálogo e oculta o carrinho
+function continuarComprando() {
+  const produtos = document.querySelector('.products');
+  const carrinho = document.querySelector('.cart');
+
+  if (!produtos || !carrinho) return;
+
+  produtos.style.display = 'grid';
+  carrinho.style.display = 'none';
+}
+
+  // tornar disponível para atributos onclick inline
+window.irParaCarrinho = irParaCarrinho;
+window.continuarComprando = continuarComprando;
+
+
   </script>
 </body>
 </html>
