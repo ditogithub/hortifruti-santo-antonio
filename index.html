@@ -172,55 +172,62 @@
   margin-bottom: 18px;
 ">
 
-  <!-- Linha de botões -->
-  <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; align-items:center;">
-    <button onclick="irParaCarrinho()" 
-            style="padding:8px 16px; border-radius:8px; border:none; background:#27ae60; color:white; cursor:pointer; font-weight:600;">
-      🛒 Ir para o carrinho
-    </button>
-    
+  <!-- Container flex principal -->
+  <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content: space-between; gap: 8px;">
 
-    <a href="#" id="adminLink" 
-       style="color: #fff; font-weight: bold; background: rgba(0,0,0,0.2); padding: 8px 16px; border-radius: 6px; text-decoration: none;">
-       Painel Admin
-    </a>
-  </div>
-  
-
-  <!-- Logo e título alinhados à esquerda -->
-  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-    <img src="imagens/logo.jpeg" alt="Logo" 
-         style="width: 56px; height: 56px; border-radius: 8px; object-fit: cover;">
-    <div>
-      <h1 style="margin: 0; font-size: 18px;">Hortifruti Santo Antônio</h1>
-      <div style="font-size: 14px;">Lugar de comprar barato 📱</div>
+    <!-- Logo + título -->
+    <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:150px;">
+      <img src="imagens/logo.jpeg" alt="Logo" 
+           style="width:56px; height:56px; border-radius:8px; object-fit:cover;">
+      <div>
+        <h1 style="margin:0; font-size:18px;">Hortifruti Santo Antônio</h1>
+        <div style="font-size:14px;">Lugar de comprar barato 📱</div>
+      </div>
     </div>
+
+    <!-- Botões -->
+    <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+      <button id="btnIrCarrinho" onclick="irParaCarrinho()" 
+              style="padding:8px 16px; border-radius:8px; border:none; background:#27ae60; color:white; cursor:pointer; font-weight:600;">
+        🛒 Ir para o carrinho
+      </button>
+
+      <a href="#" id="adminLink" 
+         style="color:#fff; font-weight:bold; background: rgba(0,0,0,0.2); padding:8px 16px; border-radius:6px; text-decoration:none;">
+         Painel Admin
+      </a>
+    </div>
+
   </div>
 
   <!-- Campo de pesquisa -->
-  <div>
+  <div style="margin-top:8px; text-align:center;">
     <input type="text" id="searchInput" placeholder="🔍 Pesquisar produto..." 
            style="width:100%; max-width:400px; padding:8px; border-radius:8px; border:1px solid #ccc;">
   </div>
 
-  <div id="mobileNav" style="display:none; text-align:center; margin-bottom:12px;">
-  <button id="btnIrCarrinho" style="background:#27ae60; color:#fff; border:0; padding:10px 16px; border-radius:8px; font-weight:600;">
-    🛒 Ir para o carrinho
-  </button>
-
 </header>
 
+<!-- BOTÕES MOBILE FIXO (IDs únicos) -->
+<button id="btnIrCarrinhoMobile" 
+        style="display:none; position:fixed; bottom:16px; right:16px; z-index:1000;
+               background:#27ae60; color:#fff; border:none; padding:12px 16px; border-radius:8px; font-weight:600;">
+  🛒 Ir para o carrinho
+</button>
 
-<!-- BOTÕES MOBILE -->
+<button id="btnContinuarMobile" 
+        style="display:none; position:fixed; bottom:16px; right:16px; z-index:1000;
+               background:#2d9cdb; color:#fff; border:none; padding:12px 16px; border-radius:8px; font-weight:600;">
+  🛍️ Continuar comprando
+</button>
 
-  <button id="btnContinuar" style="background:#2d9cdb; color:#fff; border:0; padding:10px 16px; border-radius:8px; font-weight:600; display:none;">
-    🛍️ Continuar comprando
-  </button>
-</div>
+
+
+
 
   <div class="layout">
     <!-- PRODUTOS -->
-    <div>
+    <div id="productsContainer">
       <div class="card">
         <h2 style="margin:0 0 12px 0">Produtos</h2>
         <div class="products" id="productsList"></div>
@@ -311,7 +318,18 @@
     const sellerPhone = '5581986176915';
 
     // cart local (cliente)
-    let cart = [];
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+    // exibe o carrinho assim que a página carrega
+    renderCart();
+
+
+    // Tenta recuperar carrinho do localStorage
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      cart = JSON.parse(savedCart);
+    }
+
 
     function formatBRL(v){ return 'R$ ' + Number(v||0).toFixed(2).replace('.', ','); }
 
@@ -431,30 +449,37 @@
 
     // CART
     function addToCart(p) {
-      const mode = document.querySelector(`input[name="mode_${p.id}"]:checked`)?.value || 'unit';
-      const qty = Number(document.getElementById(`qty_${p.id}`).value) || 1;
-      const unitPrice = mode === 'kg' ? p.priceKg : p.priceUnit;
+  const selectedInput = document.querySelector(`input[name="mode_${p.id}"]:checked`);
+  if(!selectedInput) {
+    alert('❌ Selecione "Unid" ou "Kg" antes de adicionar ao carrinho.');
+    return;
+  }
 
-      // estrutura padrão do item
-      const newItem = {
-        productId: p.id,
-        name: p.name,
-        img: p.img,
-        qty,
-        unitPrice,
-        mode
-      };
+  const mode = selectedInput.value;
+  const qty = Number(document.getElementById(`qty_${p.id}`).value) || 1;
+  const unitPrice = mode === 'kg' ? p.priceKg : p.priceUnit;
 
-      // se já existir o mesmo produto + modo, soma a quantidade
-      const exist = cart.find(c => c.productId === newItem.productId && c.mode === newItem.mode);
-      if (exist) {
-        exist.qty += qty;
-      } else {
-        cart.push(newItem);
-      }
+  if(unitPrice == null){
+    alert('❌ Preço inválido. Selecione outra opção.');
+    return;
+  }
 
-      renderCart();
-    }
+  // estrutura padrão do item
+  const newItem = {
+    productId: p.id,
+    name: p.name,
+    img: p.img,
+    qty,
+    unitPrice,
+    mode
+  };
+
+  const exist = cart.find(c => c.productId === newItem.productId && c.mode === newItem.mode);
+  if (exist) exist.qty += qty;
+  else cart.push(newItem);
+
+  renderCart();
+}
 
     function removeFromCart(i){ cart.splice(i,1); renderCart(); }
     function clearCart(){ if(confirm('Limpar carrinho?')){ cart=[]; renderCart(); } }
@@ -483,6 +508,9 @@
 
     // 🔥 Linha nova: atualiza PIX automaticamente
     atualizarPix();
+
+    // salva no localStorage
+    localStorage.setItem('cart', JSON.stringify(cart));
   }
 
 
@@ -867,18 +895,26 @@ async function atualizarPrecosCarrinho() {
 
 
     // ====== BOTÕES DE NAVEGAÇÃO MOBILE ======
+// ====== BOTÕES DE NAVEGAÇÃO MOBILE ======
 const layout = document.querySelector('.layout');
-const btnIrCarrinho = document.getElementById('btnIrCarrinho');
-const btnContinuar = document.getElementById('btnContinuar');
-const mobileNav = document.getElementById('mobileNav');
+const btnIrCarrinho = document.getElementById('btnIrCarrinhoMobile');
+const btnContinuar = document.getElementById('btnContinuarMobile');
 
 // Detecta se é celular (tela pequena)
 function checkMobile() {
+  const produtosContainer = document.querySelector('#productsContainer');
+  const carrinhoContainer = layout.querySelector('aside');
+
   if (window.innerWidth <= 900) {
-    mobileNav.style.display = 'block';
+    btnIrCarrinho.style.display = 'flex';
+    btnContinuar.style.display = 'none';
+    produtosContainer.style.display = 'block';
+    carrinhoContainer.style.display = 'none';
   } else {
-    mobileNav.style.display = 'none';
-    layout.style.display = 'grid'; // garante o layout padrão no PC
+    btnIrCarrinho.style.display = 'none';
+    btnContinuar.style.display = 'none';
+    produtosContainer.style.display = 'block';
+    carrinhoContainer.style.display = 'block';
   }
 }
 checkMobile();
@@ -886,18 +922,24 @@ window.addEventListener('resize', checkMobile);
 
 // Alternar visualização
 btnIrCarrinho.addEventListener('click', () => {
-  layout.querySelector('div').style.display = 'none'; // esconde produtos
-  layout.querySelector('aside').style.display = 'block'; // mostra carrinho
+  const produtosContainer = document.querySelector('#productsContainer');
+  const carrinhoContainer = layout.querySelector('aside');
+
+  produtosContainer.style.display = 'none';
+  carrinhoContainer.style.display = 'block';
   btnIrCarrinho.style.display = 'none';
-  btnContinuar.style.display = 'inline-block';
+  btnContinuar.style.display = 'flex';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 btnContinuar.addEventListener('click', () => {
-  layout.querySelector('div').style.display = 'block'; // mostra produtos
-  layout.querySelector('aside').style.display = 'none'; // esconde carrinho
+  const produtosContainer = document.querySelector('#productsContainer');
+  const carrinhoContainer = layout.querySelector('aside');
+
+  produtosContainer.style.display = 'block';
+  carrinhoContainer.style.display = 'none';
   btnContinuar.style.display = 'none';
-  btnIrCarrinho.style.display = 'inline-block';
+  btnIrCarrinho.style.display = 'flex';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
@@ -906,59 +948,11 @@ if (window.innerWidth <= 900) {
   layout.querySelector('aside').style.display = 'none';
 }
 
+// tornar disponível para atributos onclick inline
+window.irParaCarrinho = () => btnIrCarrinho.click();
+window.continuarComprando = () => btnContinuar.click();
 
 
-// ⚙️ Executa uma vez para atualizar todos os produtos antigos
-async function corrigirProdutosAtivos() {
-  try {
-    const produtosSnap = await getDocs(collection(db, 'produtos'));
-    const batch = writeBatch(db);
-
-    produtosSnap.forEach((docSnap) => {
-      const data = docSnap.data();
-      // Se o produto não tiver o campo "ativo", adiciona como true
-      if (data.ativo === undefined) {
-        batch.update(docSnap.ref, { ativo: true });
-      }
-    });
-
-    await batch.commit();
-    alert('✅ Todos os produtos antigos receberam o campo ativo: true');
-  } catch (e) {
-    console.error('Erro ao atualizar produtos:', e);
-    alert('❌ Erro ao atualizar produtos, veja o console.');
-  }
-}
-
-// =================== FUNÇÃO IR PARA CARRINHO ===================
-// Mostra o carrinho e oculta o catálogo
-function irParaCarrinho() {
-  const produtos = document.querySelector('.products');
-  const carrinho = document.querySelector('.cart');
-
-  if (!produtos || !carrinho) return;
-
-  produtos.style.display = 'none';
-  carrinho.style.display = 'block';
-
-  // rola até o topo do carrinho
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// Mostra o catálogo e oculta o carrinho
-function continuarComprando() {
-  const produtos = document.querySelector('.products');
-  const carrinho = document.querySelector('.cart');
-
-  if (!produtos || !carrinho) return;
-
-  produtos.style.display = 'grid';
-  carrinho.style.display = 'none';
-}
-
-  // tornar disponível para atributos onclick inline
-window.irParaCarrinho = irParaCarrinho;
-window.continuarComprando = continuarComprando;
 
 
   </script>
