@@ -175,7 +175,16 @@
     .admin-controls { display:flex; gap:8px; margin-top:8px; }
     .produto-admin { border:1px solid #eee; padding:8px; border-radius:6px; margin-bottom:8px; }
     @media(max-width:900px){ .layout{grid-template-columns:1fr} }
+
+    #searchInput {
+    position: sticky;
+    top: 80px; /* ajuste conforme a altura do header */
+    z-index: 500;
+    background: #fff;
+  }
   </style>
+
+   
 </head>
 <body>
 
@@ -194,28 +203,41 @@
 ">
   <!-- Logo -->
     <img src="imagens/logo.jpeg" alt="Logo" 
-        style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover; margin-bottom: 1px;">
+  style="width: 26px; height: 26px; border-radius: 4px; object-fit: cover; margin-bottom: 1px;">
 
-    <div style="flex: 1; min-width: 180px; text-align: center;">
-      <h1 style="margin: 0; font-size: 12px; line-height: 1;">
-        Hortifruti Santo Antônio: Lugar de comprar barato
-      </h1>
-      <div style="margin-top: 0px; font-size: 10px;">
-        Peça produtos pelo WhatsApp 📱
-      </div>
-    </div>
+<div style="flex: 1; min-width: 160px; text-align: center;">
+  <h1 style="margin: 0; font-size: 13px; line-height: 1.1;">
+    Hortifruti Santo Antônio: Lugar de comprar barato
+  </h1>
+</div>
 
-
-
-
-  <!-- Botão Painel Admin -->
-  <div style="margin-top: 8px;">
-    <a href="#" id="adminLink" 
-    style="color: #fff; font-weight: bold; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 6px; text-decoration: none; font-size: 12px;">
-    Admin
-    </a>
-
+  <div style="margin-top: 0px; font-size: 9px;">
+    Peça produtos pelo WhatsApp 📱
   </div>
+</div>
+
+<!-- Botão Painel Admin -->
+<div style="margin-top: 4px;">
+  <a href="#" id="adminLink" 
+    style="color: #fff; font-weight: bold; background: rgba(0,0,0,0.2); padding: 3px 6px; border-radius: 5px; text-decoration: none; font-size: 10px;">
+    Admin
+  </a>
+</div>
+
+<!-- Campo de pesquisa movido -->
+<div id="searchContainer" style="width:100%; display:flex; justify-content:center; margin-top:3px;">
+  <input type="text" id="searchInput" placeholder="🔍 Pesquisar..." 
+    style="width:55%; max-width:500px; padding:3px 6px; border-radius:5px; border:1px solid rgba(255,255,255,0.4); background:white; color:black; font-size:10px; height:18px;">
+</div>
+
+
+
+
+
+
+
+
+
 </header>
 
 <!-- BOTÕES MOBILE -->
@@ -238,8 +260,9 @@
     <div>
       <div class="card">
         <h2 style="margin:0 0 12px 0">Produtos</h2>
-        <input type="text" id="searchInput" placeholder="🔍 Pesquisar produto..." 
-        style="width:100%; padding:8px; border-radius:8px; border:1px solid #ccc; margin-bottom:10px;">
+
+      
+       
         <div class="products" id="productsList"></div>
       </div>
     </div>
