@@ -34,13 +34,34 @@
       background: linear-gradient(90deg, #27ae60, #2ecc71);
       color: white;
       border-radius: 0 0 12px 12px;
-      padding: 6px 12px; /* menor padding para reduzir altura */
+      padding: 4px 8px; /* menor padding para reduzir altura */
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
 
-    header img { width:56px; height:56px; border-radius:8px; object-fit:cover; }
-    header h1 { font-size:20px; margin:0; }
+    header img { width:32px; height:32px; border-radius:4px; object-fit:cover; }
+    header h1 { font-size:14px; margin:0;  line-height: 1.2; }
+
+    header div {
+      font-size: 12px;   /* subtítulo menor */
+      margin-top: 2px;
+    }
+
+    @media(max-width:480px){
+      header {
+        padding: 4px 6px;
+      }
+      header img {
+        width: 28px;
+        height: 28px;
+      }
+      header h1 {
+        font-size: 12px;
+      }
+      header div {
+        font-size: 10px;
+      }
+    }
     .layout { display:grid; grid-template-columns:1fr 380px; gap:18px; }
     .card { background:var(--card-bg); border-radius:10px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
     .products {
@@ -173,16 +194,17 @@
 ">
   <!-- Logo -->
     <img src="imagens/logo.jpeg" alt="Logo" 
-      style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; margin-bottom: 2px;">
+        style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover; margin-bottom: 1px;">
 
-  <div style="flex: 1; min-width: 200px; text-align: center;">
-    <h1 style="margin: 0; font-size: 14px; line-height: 1.1;">
-      Hortifruti Santo Antônio: Lugar de comprar barato
-    </h1>
-    <div style="margin-top: 1px; font-size: 11px;">
-      Peça produtos pelo WhatsApp 📱
+    <div style="flex: 1; min-width: 180px; text-align: center;">
+      <h1 style="margin: 0; font-size: 12px; line-height: 1;">
+        Hortifruti Santo Antônio: Lugar de comprar barato
+      </h1>
+      <div style="margin-top: 0px; font-size: 10px;">
+        Peça produtos pelo WhatsApp 📱
+      </div>
     </div>
-  </div>
+
 
 
 
