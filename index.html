@@ -65,12 +65,12 @@
     .layout { display:grid; grid-template-columns:1fr 380px; gap:18px; }
     .card { background:var(--card-bg); border-radius:10px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
     .products {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* preenche com o máximo que couber */
-  gap: 18px;
-  justify-items: center; /* centraliza os cards */
-  align-items: start;
-}
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* preenche com o máximo que couber */
+    gap: 18px;
+    justify-items: center; /* centraliza os cards */
+    align-items: start;
+  }
 
 .product {
   display: flex;
@@ -79,7 +79,7 @@
   border-radius: 10px;
   overflow: hidden;
   width: 100%;
-  max-width: 240px;
+  max-width: 300px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
   transition: transform 0.2s ease;
 }
@@ -232,7 +232,7 @@
 <div id="mobileNav" style="display:none; text-align:center; margin-bottom:12px;">
   <button id="btnIrCarrinho" style="background:#27ae60; color:#fff; border:0; padding:10px 16px; border-radius:8px; font-weight:600;">
     🛒 Ir para o carrinho
-  
+  </button>
   <button id="btnContinuar" style="background:#2d9cdb; color:#fff; border:0; padding:10px 16px; border-radius:8px; font-weight:600; display:none;">
     🛍️ Continuar comprando
   </button>
@@ -335,6 +335,20 @@
 
     // cart local (cliente)
     let cart = [];
+
+    // 🔥 Salvar e restaurar carrinho no localStorage
+    function salvarCarrinho() {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    function carregarCarrinho() {
+      const data = localStorage.getItem('cart');
+      if (data) {
+        cart = JSON.parse(data);
+        renderCart();
+      }
+    }
+
 
     function formatBRL(v){ return 'R$ ' + Number(v||0).toFixed(2).replace('.', ','); }
 
@@ -454,7 +468,13 @@
 
     // CART
     function addToCart(p) {
-      const mode = document.querySelector(`input[name="mode_${p.id}"]:checked`)?.value || 'unit';
+      const selected = document.querySelector(`input[name="mode_${p.id}"]:checked`);
+    if (!selected) {
+      alert('Por favor, selecione se o preço é por Unidade ou por Kg antes de adicionar ao carrinho.');
+      return;
+    }
+    const mode = selected.value;
+
       const qty = Number(document.getElementById(`qty_${p.id}`).value) || 1;
       const unitPrice = mode === 'kg' ? p.priceKg : p.priceUnit;
 
@@ -506,6 +526,8 @@
 
     // 🔥 Linha nova: atualiza PIX automaticamente
     atualizarPix();
+    salvarCarrinho();
+
   }
 
 
@@ -983,6 +1005,8 @@ function continuarComprando() {
 window.irParaCarrinho = irParaCarrinho;
 window.continuarComprando = continuarComprando;
 
+// 🔄 Restaura carrinho ao carregar a página
+window.addEventListener('DOMContentLoaded', carregarCarrinho);
 
   </script>
 </body>
